@@ -135,7 +135,6 @@ namespace Infrastructure.Bislerium
             return comment;
         }
 
-
         public async Task<Comment> UpdateCommentDownVote(Guid blogId)
         {
             var comment = await _db.Comments.FindAsync(blogId);

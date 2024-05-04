@@ -14,15 +14,53 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Blazored.LocalStorage;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>();
 
+//builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+//    .AddEntityFrameworkStores<ApplicationDbContext>()
+//    .AddApiEndpoints();
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddApiEndpoints();
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddSignInManager()
+.AddRoles<IdentityRole>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new
+    SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+    };
+});
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
 
 
 
@@ -40,7 +78,6 @@ builder.Services.AddHttpContextAccessor();
 //added
 builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<CascadingAuthenticationState, CascadingAuthenticationState>();
 
 
@@ -54,27 +91,27 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-            .AddJwtBearer(options =>
-            {
-                // Configure the JWT bearer authentication parameters here
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    // Set your issuer signing key, valid audience, and valid issuer
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("8/wVwKtv3Sl4eAjhZtg3wIUuQ/+KqWkx/jRsAlx6pXe1+UBBhcRqy6BtsTpQFmo+JZ6XQVbBYNDC1wuSdnImHw==")),
-                    ValidAudience = "https://localhost:7241",
-                    ValidIssuer = "https://localhost:7241"
-                };
-            });
+//builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+//})
+//            .AddJwtBearer(options =>
+//            {
+//                // Configure the JWT bearer authentication parameters here
+//                options.TokenValidationParameters = new TokenValidationParameters
+//                {
+//                    ValidateIssuer = true,
+//                    ValidateAudience = true,
+//                    ValidateLifetime = true,
+//                    ValidateIssuerSigningKey = true,
+//                    // Set your issuer signing key, valid audience, and valid issuer
+//                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("8/wVwKtv3Sl4eAjhZtg3wIUuQ/+KqWkx/jRsAlx6pXe1+UBBhcRqy6BtsTpQFmo+JZ6XQVbBYNDC1wuSdnImHw==")),
+//                    ValidAudience = "https://localhost:7241",
+//                    ValidIssuer = "https://localhost:7241"
+//                };
+//            });
 
 
 builder.Services.AddHttpClient();
@@ -119,7 +156,7 @@ using (var scope = app.Services.CreateScope())
 
 
 
-app.MapIdentityApi<ApplicationUser>();
+//app.MapIdentityApi<ApplicationUser>();
 
 
 // Configure the HTTP request pipeline.
