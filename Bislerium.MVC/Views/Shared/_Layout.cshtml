@@ -1,5 +1,4 @@
-﻿
-@using System.Security.Claims
+﻿@using System.Security.Claims
 
 <!DOCTYPE html>
 <html lang="en">
@@ -22,33 +21,47 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class=" text-center justify-content-center navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Blog" asp-action="Test">Test</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Blog" asp-action="Index">blogs</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Blog" asp-action="AddBlog">Add</a>
-                        </li>   
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
-                        </li>
+                       
+                       
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <p>Welcome, @User.Identity.Name!</p>
-
-                            <ul>
-                                @foreach (Claim claim in ((ClaimsIdentity)User.Identity).Claims)
-                                {
-                                    <li>@claim.Type: @claim.Value</li>
-                                }
-                            </ul>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Blog" asp-action="Test">AddBlogs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Blog" asp-action="Index">MyBlogs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="UserProfile">MyProfile</a>
+                            </li>
                         }
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item ms-5">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Register">Register</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
+                            </li>
+                        }
+                        else
+                        {
+                             <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>
+                            </li>
+                        }
+                        @*     @if (User.Identity.IsAuthenticated)
+                        {
+                        <p>Welcome, @User.Identity.Name!</p>
+                        <p>Email: @User.FindFirst(ClaimTypes.Email)?.Value</p>
+                        <p>Email: @User.FindFirst(ClaimTypes.Name)?.Value</p>
+                        <p>Email: @User.FindFirst(ClaimTypes.NameIdentifier)?.Value</p>
+
+                        } *@
                     </ul>
                 </div>
             </div>

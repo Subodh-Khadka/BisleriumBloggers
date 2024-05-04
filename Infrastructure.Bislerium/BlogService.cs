@@ -82,9 +82,9 @@ namespace Infrastructure.Bislerium
             return blog;
         }
 
-        public async Task<Blog> UpdateBlog(Blog blog, IFormFile image)
+        public async Task<Blog> UpdateBlog(Guid blogId, Blog blog, IFormFile image)
         {
-            var existingBlog = await _db.Blogs.FindAsync(blog.Id);
+            var existingBlog = await _db.Blogs.FindAsync(blogId);
 
             if (existingBlog == null)
             {
@@ -152,9 +152,15 @@ namespace Infrastructure.Bislerium
             return blog;
         }
 
+        public async Task<IEnumerable<Blog>> GetAllBlogsUserId(string userId)
+        {
+            
+            var blogs = await _db.Blogs
+                .Where(b => b.UserId == userId) 
+                .ToListAsync();
 
-
-
+            return blogs;
+        }
 
     }
 }

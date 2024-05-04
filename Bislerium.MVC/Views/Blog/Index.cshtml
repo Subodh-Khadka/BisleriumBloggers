@@ -1,11 +1,24 @@
 ﻿@using Domain.Bislerium
 @model List<Blog>
 
-<h6 class="display-4 text-center mt-2">Blogs</h6>
+    <style>
+       .table{
+           font-size:smaller;
+       }
+
+       .table img{
+           height:50px;
+           width:50px;
+       }
+    </style>
+
+
+
+<p class="text-center mt-1">My Blogs</p>
 
 @if (Model != null && Model.Any())
 {
-    <div class="container mt-5">
+    <div class="container mt-2">
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -13,10 +26,10 @@
                     <th>Description</th>
                     <th>Image</th>
                     <th>Created Date</th>
-                    <th>User</th>
                     <th>Popularity</th>
                     <th>UpVote</th>
                     <th>DownVote</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,11 +38,25 @@
                     <tr>
                         <td>@blog.Title</td>
                         <td>@blog.Description</td>
-                        <td><img src="https://localhost:7241/@blog.Image" alt="@blog.Id" style="max-width: 40%; max-height:40%" class="rounded-circle" /></td>
+                        <td><img src="https://localhost:7241/@blog.Image" alt="@blog.Id"/></td>
                         <td>@blog.CreatedDateTime.ToShortDateString()</td>
                         <td>@blog.Popularity</td>
                         <td>@blog.UpVote</td>
                         <td>@blog.DownVote</td>
+                        <td class="d-flex gap-1">
+                            <form asp-action="Edit" asp-controller="Blog">
+                                <input type="hidden" name="blogId" value="@blog.Id" />
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </form>
+                            <form method="post" asp-action="Delete" asp-controller="Blog">
+                                <input type="hidden" name="blogId" value="@blog.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 }
             </tbody>

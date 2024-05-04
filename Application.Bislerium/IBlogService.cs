@@ -13,9 +13,10 @@ namespace Application.Bislerium
         Task<Blog> AddBlog(Blog blog, IFormFile image);
         Task<IEnumerable<Blog>> GetAllBlogs();
         Task<Blog> GetBlogById(Guid id);
-        Task<Blog> UpdateBlog(Blog blog, IFormFile image);
+        Task<Blog> UpdateBlog( Guid blogId, Blog blog, IFormFile image);
         Task<Blog> DeleteBlog(Guid id);
         Task<Blog> UpdateBlogUpVote(Guid id); 
-        Task<Blog> UpdateBlogDownVote(Guid id); 
+        Task<Blog> UpdateBlogDownVote(Guid id);
+        Task<IEnumerable<Blog>> GetAllBlogsUserId(string userId);
     }
 }

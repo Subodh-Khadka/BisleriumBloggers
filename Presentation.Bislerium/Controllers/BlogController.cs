@@ -36,6 +36,7 @@ namespace Presentation.Bislerium.Controllers
             return Ok(newBlog);
         }
 
+        
         [HttpGet("GetAllBlogs")]
         public async Task<IActionResult> GetAllBlogs()
         {
@@ -56,7 +57,7 @@ namespace Presentation.Bislerium.Controllers
 
         [HttpPut("UpdateBlog")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UpdateBlog([FromBody] Blog blog, IFormFile image)
+        public async Task<IActionResult> UpdateBlog(Guid blogId, Blog blog, IFormFile image)
         {
 
             if (blog == null)
@@ -64,7 +65,7 @@ namespace Presentation.Bislerium.Controllers
                 return BadRequest("Invalid blog data");
             }
 
-            var updatedBlog = await _blogService.UpdateBlog(blog, image);
+            var updatedBlog = await _blogService.UpdateBlog(blogId, blog, image);
             return Ok(updatedBlog);
         }
 
@@ -102,6 +103,14 @@ namespace Presentation.Bislerium.Controllers
         {
             var result = await _blogService.DeleteBlog(id);
             return Ok("BlogDeleted"); 
+        }
+
+
+        [HttpGet("GetAllBlogsUserId/{userId}")]
+        public async Task<IActionResult> GetAllBlogsUserId(string userId)
+        {
+            var result = await _blogService.GetAllBlogsUserId(userId);
+            return Ok(result);
         }
     }
 }
