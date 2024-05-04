@@ -117,21 +117,66 @@ namespace Infrastructure.Bislerium
             return existingBlog;
         }
 
-        public async Task<Blog> UpdateBlogVotes(Blog blog)
+        public async Task<Blog> UpdateBlogUpVote(Guid blogId)
         {
-            var existingBlog = await _db.Blogs.FindAsync(blog.Id);
+            var blog = await _db.Blogs.FindAsync(blogId);
 
-            if (existingBlog == null)
+            if (blog == null)
             {
                 throw new KeyNotFoundException("Blog not found");
             }
 
-            existingBlog.UpVote = blog.UpVote;
-            existingBlog.DownVote = blog.DownVote;
-           
-            _db.Update(existingBlog);
+            blog.UpVote++;
+
+            _db.Update(blog);
             await _db.SaveChangesAsync();
-            return existingBlog;
+
+            return blog;
         }
+
+
+        public async Task<Blog> UpdateBlogDownVote(Guid blogId)
+        {
+            var blog = await _db.Blogs.FindAsync(blogId);
+
+            if (blog == null)
+            {
+                throw new KeyNotFoundException("Blog not found");
+            }
+
+            blog.DownVote++;
+
+            _db.Update(blog);
+            await _db.SaveChangesAsync();
+
+            return blog;
+        }
+
+
+
+
+
     }
 }
+
+
+
+
+
+
+//public async Task<Blog> UpdateBlogVotes(Guid blogId)
+//{
+//    var existingBlog = await _db.Blogs.FindAsync(blogId);
+
+//    if (existingBlog == null)
+//    {
+//        throw new KeyNotFoundException("Blog not found");
+//    }
+
+//    existingBlog.UpVote++;
+//    existingBlog.DownVote--;
+
+//    _db.Update(existingBlog);
+//    await _db.SaveChangesAsync();
+//    return existingBlog;
+//}

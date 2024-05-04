@@ -23,6 +23,18 @@ namespace Infrastructure.Bislerium
             _db = db;
         }
 
+        //public async Task<Comment> AddComment(Comment comment)
+        //{
+        //    if (comment == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(comment));
+        //    }
+
+        //    var result = await _db.Comments.AddAsync(comment);
+        //    await _db.SaveChangesAsync();
+        //    return result.Entity;
+        //}
+
         public async Task<Comment> AddComment(Comment comment)
         {
             if (comment == null)
@@ -30,10 +42,22 @@ namespace Infrastructure.Bislerium
                 throw new ArgumentNullException(nameof(comment));
             }
 
+            var blog = await _db.Blogs.FindAsync(comment.BlogId);
+
+            if (blog == null)
+            {
+                throw new KeyNotFoundException($"Blog with ID {comment.BlogId} not found.");
+            }
+
             var result = await _db.Comments.AddAsync(comment);
             await _db.SaveChangesAsync();
+
+            blog.Comments.Add(comment);
+            await _db.SaveChangesAsync();
+
             return result.Entity;
         }
+
 
 
         public async Task<Comment> DeleteComment(Guid Id)

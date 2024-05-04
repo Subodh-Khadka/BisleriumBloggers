@@ -20,9 +20,13 @@
                     <div class="card-footer">
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">@blog.CreatedDateTime.ToShortDateString()</small>
-                            <button class="btn btn-success" onclick="location.href = '@Url.Action("ViewBlog", "Blog", new { id = @blog.Id })'">View</button>
+                            <form asp-action="BlogDetail" asp-controller="Home" method="get">
+                                <input type="hidden" name="blogId" value="@blog.Id" />
+                                <button type="submit" class="btn btn-success">View</button>
+                            </form>
                         </div>
                     </div>
+
                 </div>
             </div>
         }

@@ -14,7 +14,8 @@ namespace Application.Bislerium
         Task<IEnumerable<Blog>> GetAllBlogs();
         Task<Blog> GetBlogById(Guid id);
         Task<Blog> UpdateBlog(Blog blog, IFormFile image);
-        Task<Blog> DeleteBlog(Guid id);   
-        Task<Blog> UpdateBlogVotes(Blog blog);   
+        Task<Blog> DeleteBlog(Guid id);
+        Task<Blog> UpdateBlogUpVote(Guid id); 
+        Task<Blog> UpdateBlogDownVote(Guid id); 
     }
 }

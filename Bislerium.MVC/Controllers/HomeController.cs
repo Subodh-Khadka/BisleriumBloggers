@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Net.Http;
+using System.Text;
 
 namespace Bislerium.MVC.Controllers
 {
@@ -32,6 +33,114 @@ namespace Bislerium.MVC.Controllers
                 return View("Error");
             }
         }
+
+        public async Task<IActionResult> BlogDetail(Guid blogId)
+        {
+            try
+            {
+                var blog = await _httpClient.GetFromJsonAsync<Blog>($"https://localhost:7241/GetBlogById/{blogId}");
+
+                if (blog != null)
+                {
+                    return View(blog);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateBlogUpVote(Guid blogId)
+        {
+            try
+            {
+                var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateBlogUpVote/{blogId}", null);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("BlogDetail", new { blogId });
+                }
+                else
+                {
+                    // Handle unsuccessful response
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateBlogDownVote(Guid blogId)
+        {
+            try
+            {
+                var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateBlogDownVote/{blogId}", null);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("BlogDetail", new { blogId });
+                }
+                else
+                {
+                    // Handle unsuccessful response
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddComment(Guid blogId, string content)
+        {
+            try
+            {
+                var comment = new Comment
+                {
+                    BlogId = blogId,
+                    Content = content
+                };
+
+                var json = JsonConvert.SerializeObject(comment);
+
+                var contentData = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync("https://localhost:7241/AddComment", contentData);
+
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("BlogDetail", new { blogId });
+                }
+                else
+                {
+                    // Handle unsuccessful response
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions that occur during the request
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+
+
+
+
 
         public IActionResult Privacy()
         {

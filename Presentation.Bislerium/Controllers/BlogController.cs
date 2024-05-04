@@ -1,6 +1,7 @@
 ﻿using Application.Bislerium;
 using Domain.Bislerium;
 using Domain.Bislerium.ViewModels;
+using Infrastructure.Bislerium;
 using Infrastructure.Bislerium.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -67,18 +68,34 @@ namespace Presentation.Bislerium.Controllers
             return Ok(updatedBlog);
         }
 
-
-        [HttpPut("UpdateBlogVotes")]
-        public async Task<IActionResult> UpdateBlogVotes([FromBody] Blog blog)
+        [HttpPut("UpdateBlogUpVote/{id}")]
+        public async Task<IActionResult> UpdateBlogUpVote(Guid id)
         {
-            if (blog == null)
+            try
             {
-                return BadRequest("Invalid blog data");
+                var updatedBlog = await _blogService.UpdateBlogUpVote(id);
+                return Ok(updatedBlog);
             }
-
-            var updatedBlog = await _blogService.UpdateBlogVotes(blog);
-            return Ok(updatedBlog);
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Blog not found");
+            }
         }
+
+        [HttpPut("UpdateBlogDownVote/{id}")]
+        public async Task<IActionResult> UpdateBlogDownVote(Guid id)
+        {
+            try
+            {
+                var updatedBlog = await _blogService.UpdateBlogDownVote(id);
+                return Ok(updatedBlog);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Blog not found");
+            }
+        }
+
 
         [HttpDelete("DeleteBlog/{id}")]
         public async Task<IActionResult> DeleteBlog(Guid id)
@@ -86,6 +103,22 @@ namespace Presentation.Bislerium.Controllers
             var result = await _blogService.DeleteBlog(id);
             return Ok("BlogDeleted"); 
         }
-
     }
 }
+
+
+
+
+
+
+//[HttpPut("UpdateBlogVotes")]
+//public async Task<IActionResult> UpdateBlogVotes([FromBody] Blog blog)
+//{
+//    if (blog == null)
+//    {
+//        return BadRequest("Invalid blog data");
+//    }
+
+//    var updatedBlog = await _blogService.UpdateBlogVotes(blog);
+//    return Ok(updatedBlog);
+//}
