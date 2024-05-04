@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿
+@using System.Security.Claims
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -31,7 +34,21 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Blog" asp-action="AddBlog">Add</a>
+                        </li>   
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
                         </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <p>Welcome, @User.Identity.Name!</p>
+
+                            <ul>
+                                @foreach (Claim claim in ((ClaimsIdentity)User.Identity).Claims)
+                                {
+                                    <li>@claim.Type: @claim.Value</li>
+                                }
+                            </ul>
+                        }
                     </ul>
                 </div>
             </div>

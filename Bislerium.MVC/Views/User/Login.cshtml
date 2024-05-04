@@ -1,0 +1,36 @@
+﻿@model Domain.Bislerium.ViewModels.LoginVm
+
+<div class="container-fluid center-container">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h2>Login to Your Account</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <form asp-action="Login" asp-controller="User" method="post">
+                            <div class="mb-3">
+                                <label for="inputEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="inputEmail" name="Email" placeholder="Enter your email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="inputPassword" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="inputPassword" name="Password" placeholder="Password" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6 offset-md-3 text-center">
+                <p>Don't have an account? <a asp-controller="Account" asp-action="Register">Register</a></p>
+            </div>
+        </div>
+    </div>
+</div>
