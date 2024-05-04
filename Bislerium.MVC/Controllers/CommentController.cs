@@ -1,7 +1,6 @@
 ﻿using Domain.Bislerium;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Text;
 
 namespace Bislerium.MVC.Controllers
 {
@@ -14,28 +13,57 @@ namespace Bislerium.MVC.Controllers
             _httpClient = httpClient;
         }
 
+        public async Task<IActionResult> Edit(Guid commentId)
+        {
+            var response = await _httpClient.GetAsync($"https://localhost:7241/GetCommentById/{commentId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var comment = JsonConvert.DeserializeObject<Comment>(content);
+
+                return View(comment);
+            }
+            else
+            {
+                return View("Error");
+            }
+        }
+
         [HttpPost]
-        public async Task<IActionResult> AddComment(Guid blogId, string content)
+        public async Task<IActionResult> Edit(Comment comment, Guid blogId)
         {
             try
             {
-                var comment = new Comment
-                {
-                    BlogId = blogId,
-                    Content = content,
-
-                };
-
-                var json = JsonConvert.SerializeObject(comment);
-
-                var contentData = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync("https://localhost:7241/AddComment", contentData);
-
+                var response = await _httpClient.PutAsJsonAsync($"https://localhost:7241/UpdateComment", comment);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return RedirectToAction("BlogDetail", new { blogId });
+                    return RedirectToAction(nameof(HomeController.BlogDetail), "Home", new { blogId = blogId });
+
+                }
+                else
+                {
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteComment(Guid commentId,Guid blogId)
+        {
+            
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"https://localhost:7241/DeleteComment/{commentId}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction(nameof(HomeController.BlogDetail), "Home", new { blogId = blogId });
                 }
                 else
                 {
@@ -45,11 +73,13 @@ namespace Bislerium.MVC.Controllers
             }
             catch (Exception ex)
             {
-                // Handle any exceptions that occur during the request
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
 
+        public IActionResult Index()
+        {
+            return View();
+        }
     }
 }
-

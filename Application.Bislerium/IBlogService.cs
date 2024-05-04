@@ -15,12 +15,12 @@ namespace Application.Bislerium
         Task<Blog> GetBlogById(Guid id);
         Task<Blog> UpdateBlog( Guid blogId, Blog blog, IFormFile image);
         Task<Blog> DeleteBlog(Guid id);
-        Task<Blog> UpdateBlogUpVote(Guid id); 
-        Task<Blog> UpdateBlogDownVote(Guid id);
+        Task<Blog> UpdateBlogUpVote(Guid id, string userId); 
+        Task<Blog> UpdateBlogDownVote(Guid id, string userId);
         Task<IEnumerable<Blog>> GetAllBlogsUserId(string userId);
         Task<IEnumerable<Blog>> GetSortedBlogs(string sortBy);
-        Task UpVoteBlog(Guid blogId, string userId);
-        Task DownVoteBlog(Guid blogId, string userId);
+        Task<double> CalculateBlogPopularity(Guid blogId);
+
 
     }
 }

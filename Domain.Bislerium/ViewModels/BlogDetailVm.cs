@@ -8,6 +8,7 @@ namespace Domain.Bislerium.ViewModels
 {
     public class BlogDetailVm
     {
+        public string? UserId { get; set; }
         public Blog Blog { get; set; }
         public List<Comment> Comments { get; set; }
     }

@@ -1,4 +1,5 @@
 ﻿@model Domain.Bislerium.ViewModels.BlogDetailVm
+@using System.Security.Claims
 
 @{
     ViewData["Title"] = "Blog Details";
@@ -15,10 +16,12 @@
             <div class="btn btn-group gap-2">
                 <form method="post" action="@Url.Action("UpdateBlogUpVote", "Home")">
                     <input type="hidden" name="blogId" value="@Model.Blog.Id" />
+                    <input type="hidden" name="userId" value="@Model.UserId" />
                     <button type="submit" class="btn btn-sm btn-primary">@Model.Blog.UpVote <i class="bi bi-hand-thumbs-up"></i> </button>
                 </form>
                 <form method="post" action="@Url.Action("UpdateBlogDownVote", "Home")">
                     <input type="hidden" name="blogId" value="@Model.Blog.Id" />
+                    <input type="hidden" name="userId" value="@Model.UserId" />
                     <button type="submit" class="btn btn-sm btn-primary">@Model.Blog.DownVote <i class="bi bi-hand-thumbs-down"></i> </button>
                 </form>
             </div>
@@ -45,6 +48,18 @@
                                 <input type="hidden" name="commentId" value="@comment.Id" />
                                 <button type="submit" class="btn btn-sm btn-primary">@comment.DownVote <i class="bi bi-hand-thumbs-down"></i> </button>
                             </form>
+                            @if (User.Identity.IsAuthenticated && comment.UserId == User.FindFirst(ClaimTypes.NameIdentifier)?.Value)
+                            {
+                                <form method="get" action="@Url.Action("Edit", "Comment")">
+                                    <input type="hidden" name="commentId" value="@comment.Id" />
+                                    <button type="submit" class="btn btn-sm btn-warning">Edit</button>
+                                </form>
+                                <form method="post" action="@Url.Action("DeleteComment", "Comment")">
+                                    <input type="hidden" name="commentId" value="@comment.Id" />
+                                    <input type="hidden" name="blogId" value="@Model.Blog.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            }
                         </div>
                     </div>
                 </div>

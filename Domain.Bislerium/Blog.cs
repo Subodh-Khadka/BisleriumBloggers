@@ -18,7 +18,6 @@ namespace Domain.Bislerium
         [ForeignKey("User")]
         public string? UserId { get; set; }
         public ApplicationUser User { get; set; }
-
         public double? Popularity { get; set; }
         public int? UpVote { get; set; }
         public int? DownVote { get; set; }

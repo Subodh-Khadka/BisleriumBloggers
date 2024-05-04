@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Text;
 
 namespace Bislerium.MVC.Controllers
@@ -66,24 +67,10 @@ namespace Bislerium.MVC.Controllers
             }
         }
 
-
-        //public async Task<IActionResult> Index()
-        //{
-        //    var response = await _httpClient.GetAsync("https://localhost:7241/GetAllBlogs");
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        var content = await response.Content.ReadAsStringAsync();
-        //        var blogs = JsonConvert.DeserializeObject<List<Blog>>(content);
-        //        return View(blogs);
-        //    }
-        //    else
-        //    {
-        //        return View("Error");
-        //    }
-        //}
-
         public async Task<IActionResult> BlogDetail(Guid blogId)
         {
+            var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
             try
             {
                 var blogResponse = await _httpClient.GetFromJsonAsync<Blog>($"https://localhost:7241/GetBlogById/{blogId}");
@@ -94,7 +81,8 @@ namespace Bislerium.MVC.Controllers
                     var viewModel = new BlogDetailVm
                     {
                         Blog = blogResponse,
-                        Comments = commentsResponse
+                        Comments = commentsResponse,
+                        UserId = userId,
                     };
 
                     return View(viewModel);
@@ -112,11 +100,13 @@ namespace Bislerium.MVC.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> UpdateBlogUpVote(Guid blogId)
+        public async Task<IActionResult> UpdateBlogUpVote(Guid blogId, string userId)
         {
             try
             {
-                var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateBlogUpVote/{blogId}", null);
+                var requestUrl = $"https://localhost:7241/UpdateBlogUpVote/{blogId}?userId={userId}";
+
+                var response = await _httpClient.PutAsync(requestUrl, null);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -124,7 +114,6 @@ namespace Bislerium.MVC.Controllers
                 }
                 else
                 {
-                    // Handle unsuccessful response
                     return RedirectToAction("Index");
                 }
             }
@@ -133,12 +122,16 @@ namespace Bislerium.MVC.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
+
         [HttpPost]
-        public async Task<IActionResult> UpdateBlogDownVote(Guid blogId)
+        public async Task<IActionResult> UpdateBlogDownVote(Guid blogId, string userId)
         {
             try
             {
-                var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateBlogDownVote/{blogId}", null);
+                //var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateBlogDownVote/{blogId}", null);
+                var requestUrl = $"https://localhost:7241/UpdateBlogDownVote/{blogId}?userId={userId}";
+                var response = await _httpClient.PutAsync(requestUrl, null);
 
                 if (response.IsSuccessStatusCode)
                 {

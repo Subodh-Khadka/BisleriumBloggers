@@ -70,11 +70,11 @@ namespace Presentation.Bislerium.Controllers
         }
 
         [HttpPut("UpdateBlogUpVote/{id}")]
-        public async Task<IActionResult> UpdateBlogUpVote(Guid id)
+        public async Task<IActionResult> UpdateBlogUpVote(Guid id, string userId)
         {
             try
             {
-                var updatedBlog = await _blogService.UpdateBlogUpVote(id);
+                var updatedBlog = await _blogService.UpdateBlogUpVote(id, userId);
                 return Ok(updatedBlog);
             }
             catch (KeyNotFoundException)
@@ -84,11 +84,11 @@ namespace Presentation.Bislerium.Controllers
         }
 
         [HttpPut("UpdateBlogDownVote/{id}")]
-        public async Task<IActionResult> UpdateBlogDownVote(Guid id)
+        public async Task<IActionResult> UpdateBlogDownVote(Guid id, string userId)
         {
             try
             {
-                var updatedBlog = await _blogService.UpdateBlogDownVote(id);
+                var updatedBlog = await _blogService.UpdateBlogDownVote(id, userId);
                 return Ok(updatedBlog);
             }
             catch (KeyNotFoundException)
@@ -118,6 +118,25 @@ namespace Presentation.Bislerium.Controllers
         {
             var sortedBlogs = await _blogService.GetSortedBlogs(sortBy);
             return Ok(sortedBlogs);
+        }
+
+
+        [HttpGet("CalculateBlogPopularity/{blogId}")]
+        public async Task<IActionResult> CalculateBlogPopularity(Guid blogId)
+        {
+            try
+            {
+                var popularity = await _blogService.CalculateBlogPopularity(blogId);
+                return Ok(popularity);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound($"Blog with ID {blogId} not found.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while calculating blog popularity: {ex.Message}");
+            }
         }
 
     }

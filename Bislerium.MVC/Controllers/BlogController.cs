@@ -9,6 +9,7 @@ using System.Text;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MVC.Frontend.Controllers
 {
@@ -21,6 +22,7 @@ namespace MVC.Frontend.Controllers
             _httpClient = httpClient;
         }
 
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);

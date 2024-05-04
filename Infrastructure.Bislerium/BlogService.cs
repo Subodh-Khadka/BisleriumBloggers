@@ -117,40 +117,106 @@ namespace Infrastructure.Bislerium
             return existingBlog;
         }
 
-        public async Task<Blog> UpdateBlogUpVote(Guid blogId)
+        public async Task<Blog> UpdateBlogUpVote(Guid blogId, string userId)
         {
             var blog = await _db.Blogs.FindAsync(blogId);
-
             if (blog == null)
             {
                 throw new KeyNotFoundException("Blog not found");
             }
 
-            blog.UpVote++;
+            var existingUpVote = await _db.Uovotes.FirstOrDefaultAsync(u => u.BlogId == blogId && u.UserId == userId);
+            if (existingUpVote == null)
+            {
+                var newUpVote = new UpVote
+                {
+                    Id = Guid.NewGuid(),
+                    UpVoteDate = DateTime.Now,
+                    UserId = userId,
+                    BlogId = blogId
+                };
+                _db.Uovotes.Add(newUpVote);
+                blog.UpVote++; 
+            }
+            else
+            {
+                _db.Uovotes.Remove(existingUpVote);
+                blog.UpVote--;
+            }
 
             _db.Update(blog);
             await _db.SaveChangesAsync();
-
             return blog;
         }
 
-
-        public async Task<Blog> UpdateBlogDownVote(Guid blogId)
+        public async Task<Blog> UpdateBlogDownVote(Guid blogId, string userId)
         {
             var blog = await _db.Blogs.FindAsync(blogId);
-
             if (blog == null)
             {
                 throw new KeyNotFoundException("Blog not found");
             }
 
-            blog.DownVote++;
+            
+            var existingDownVote = await _db.DownVotes.FirstOrDefaultAsync(d => d.BlogId == blogId && d.UserId == userId);
+            if (existingDownVote == null)
+            {
+               
+                var newDownVote = new DownVote
+                {
+                    Id = Guid.NewGuid(),
+                    DownVoteDate = DateTime.Now,
+                    UserId = userId,
+                    BlogId = blogId
+                };
+                _db.DownVotes.Add(newDownVote);
+                blog.DownVote++;
+            }
+            else
+            {
+                _db.DownVotes.Remove(existingDownVote);
+                blog.DownVote--;
+            }
 
             _db.Update(blog);
             await _db.SaveChangesAsync();
-
             return blog;
         }
+
+        //public async Task<Blog> UpdateBlogUpVote(Guid blogId)
+        //{
+        //    var blog = await _db.Blogs.FindAsync(blogId);
+
+        //    if (blog == null)
+        //    {
+        //        throw new KeyNotFoundException("Blog not found");
+        //    }
+
+        //    blog.UpVote++;
+
+        //    _db.Update(blog);
+        //    await _db.SaveChangesAsync();
+
+        //    return blog;
+        //}
+
+
+        //public async Task<Blog> UpdateBlogDownVote(Guid blogId)
+        //{
+        //    var blog = await _db.Blogs.FindAsync(blogId);
+
+        //    if (blog == null)
+        //    {
+        //        throw new KeyNotFoundException("Blog not found");
+        //    }
+
+        //    blog.DownVote++;
+
+        //    _db.Update(blog);
+        //    await _db.SaveChangesAsync();
+
+        //    return blog;
+        //}
 
         public async Task<IEnumerable<Blog>> GetAllBlogsUserId(string userId)
         {
@@ -185,7 +251,29 @@ namespace Infrastructure.Bislerium
             return await query.ToListAsync();
         }
 
+        public async Task<double> CalculateBlogPopularity(Guid blogId)
+        {
+            var blog = await _db.Blogs.FindAsync(blogId);
 
+            if (blog == null)
+            {
+                throw new KeyNotFoundException($"Blog with ID {blogId} not found.");
+            }
+
+            const int upvoteWeightage = 2;
+            const int downvoteWeightage = -1;
+            const int commentWeightage = 1;
+
+            double popularity = upvoteWeightage * (blog.UpVote ?? 0) +
+                                downvoteWeightage * (blog.DownVote ?? 0) +
+                                commentWeightage * (blog.Comments?.Count ?? 0);
+
+            blog.Popularity = popularity;
+            _db.Blogs.Update(blog);
+            await _db.SaveChangesAsync();
+
+            return popularity;
+        }
     }
 }
 
