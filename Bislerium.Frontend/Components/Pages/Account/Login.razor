@@ -1,0 +1,49 @@
+﻿@page "/login"
+@using Domain.Bislerium
+@using Domain.Bislerium.ViewModels
+@using Application.Bislerium
+@using Microsoft.AspNetCore.Authentication;
+@inject IAuthService AuthService
+@rendermode @(new InteractiveServerRenderMode(false));
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+<h1>Login</h1>
+
+<EditForm Model="@loginModel" OnValidSubmit="@LoginUser" FormName="loginUsers">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="email">Email</label>
+        <InputText id="email" @bind-Value="loginModel.Email" class="form-control" />
+        <ValidationMessage For="@(() => loginModel.Email)" />
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <InputText id="password" @bind-Value="loginModel.Password" class="form-control" />
+        <ValidationMessage For="@(() => loginModel.Password)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@code {
+    private LoginVm loginModel = new LoginVm();
+
+    private async Task LoginUser()
+    {
+        var response = await Http.PostAsJsonAsync("https://localhost:7241/api/Account/login", loginModel);
+        if (response.IsSuccessStatusCode)
+        {
+            var token = await response.Content.ReadAsStringAsync(); // Extract token from response
+            await LocalStorage.SetItemAsync("token", token);
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/blogs");
+        }
+    }
+}

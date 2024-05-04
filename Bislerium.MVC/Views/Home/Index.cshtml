@@ -1,0 +1,30 @@
+﻿@model List<Domain.Bislerium.Blog>
+
+@{
+    ViewData["Title"] = "All Blogs";
+}
+
+<h1 class="text-center my-4">Blogs</h1>
+
+<div class="container blogs-record">
+    <div class="row">
+        @foreach (var blog in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="https://localhost:7241/@blog.Image" alt="@blog.Id" style="max-width: 40%; max-height:40%" class="rounded-circle" />
+                    <div class="card-body">
+                        <h5 class="card-title">@blog.Title</h5>
+                        @* <p class="card-text">@blog.Description</p> *@
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">@blog.CreatedDateTime.ToShortDateString()</small>
+                            <button class="btn btn-success" onclick="location.href = '@Url.Action("ViewBlog", "Blog", new { id = @blog.Id })'">View</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,130 @@
+﻿@page "/editBlog/{blogId}"
+@using Domain.Bislerium
+@using Application.Bislerium
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components
+@using Newtonsoft.Json
+@using System.Text.Json
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IBlogService BlogService
+@inject ICommentService CommentService
+@rendermode @(new InteractiveServerRenderMode(false));
+@* @rendermode InteractiveServer *@
+
+<style>
+    .blog-header {
+        box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    }
+</style>
+
+@if (blog != null)
+{
+    <h2 class="mb-3 text-center">Edit Blog</h2>
+    <hr />
+    <div class="form-group text-center mb-2">
+        <img src="https://localhost:7241/@blog.Image" alt="@blog.Id" style="max-width: 10%; max-height:10%" class="rounded-circle" />
+    </div>
+    <div class="container">
+        <div class="blog-header justify-content-center align-items-center p-3">
+            <EditForm Model="@blog" OnValidSubmit="@UpdateBlog" enctype="multipart/form-data">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="form-group">
+                    <label>Title:</label>
+                    <InputText @bind-Value="blog.Title" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Description:</label>
+                    <InputTextArea @bind-Value="blog.Description" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Image:</label>
+                    <InputFile OnChange="@HandleImageUpload" class="form-control" />
+                </div>
+               
+
+
+                <button type="submit" class="btn btn-sm btn-primary mt-2">Save Changes</button>
+            </EditForm>
+        </div>
+    </div>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    Blog blog;
+    private IBrowserFile selectedImage;
+
+    [Parameter]
+    public string blogId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(blogId))
+        {
+            await LoadBlog();
+        }
+    }
+
+    private async Task LoadBlog()
+    {
+        blog = await Http.GetFromJsonAsync<Blog>($"https://localhost:7241/GetBlogById/{blogId}");
+    }
+
+    private async Task UpdateBlog()
+    {
+        try
+        {
+            using (var formData = new MultipartFormDataContent())
+            {
+                // Add blog data to the form data
+                formData.Add(new StringContent(blog.Id.ToString()), "Id");
+                formData.Add(new StringContent(blog.Title), "Title");
+                formData.Add(new StringContent(blog.Description), "Description");
+                formData.Add(new StringContent(blog.UserId ?? "cb2030a7-9ce3-43a7-9827-39255dc1f185"), "UserId");
+                formData.Add(new StringContent(blog.Popularity?.ToString() ?? "0"), "Popularity");
+                formData.Add(new StringContent(blog.UpVote?.ToString() ?? "0"), "UpVote");
+                formData.Add(new StringContent(blog.DownVote?.ToString() ?? "0"), "DownVote");
+
+                if (selectedImage != null)
+                {
+                    // If an image is selected, handle it accordingly
+                    var formFileContent = new StreamContent(selectedImage.OpenReadStream());
+                    formFileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(selectedImage.ContentType);
+                    formData.Add(formFileContent, "image", selectedImage.Name);
+                }
+
+                // Send the request
+                var response = await Http.PutAsync("https://localhost:7241/UpdateBlog", formData);
+
+                // Handle the response
+                if (response.IsSuccessStatusCode)
+                {
+                    NavigationManager.NavigateTo("/blogs");
+                }
+                else
+                {
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Error: {errorResponse}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception: {ex.Message}");
+        }
+    }
+
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs e)
+    {
+        selectedImage = e.File;
+    }
+}

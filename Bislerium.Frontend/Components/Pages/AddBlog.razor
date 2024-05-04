@@ -1,0 +1,143 @@
+﻿@page "/addblog"
+@using Domain.Bislerium
+@using Application.Bislerium
+@using Microsoft.AspNetCore.Components.Forms
+
+@using Microsoft.AspNetCore.Components;
+@rendermode @(new InteractiveServerRenderMode(false));
+@using System.ComponentModel.DataAnnotations;
+@* System.Text.Json.JsonSerializer *@
+@using System
+@using Newtonsoft.Json
+@using System.Text.Json
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IBlogService BlogService
+
+<h1>Add Blog</h1>
+
+<EditForm Model="@newBlog" OnValidSubmit="HandleSubmit" enctype="multipart/form-data">
+    <DataAnnotationsValidator />
+    <div class="form-group">
+        <label for="title">Title:</label>
+        <InputText id="title" @bind-Value="newBlog.Title" class="form-control" />
+        <ValidationMessage For="@(() => newBlog.Title)" />
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description:</label>
+        <InputText id="description" @bind-Value="newBlog.Description" class="form-control" />
+        <ValidationMessage For="@(() => newBlog.Description)" />
+    </div>
+
+    <div class="form-group">
+        <label for="userId">User ID:</label>
+        <InputText id="userId" @bind-Value="newBlog.UserId" class="form-control" />
+        <ValidationMessage For="@(() => newBlog.UserId)" />
+    </div>
+
+    <div class="form-group">
+        <label for="popularity">Popularity:</label>
+        <InputNumber id="popularity" @bind-Value="newBlog.Popularity" class="form-control" />
+        <ValidationMessage For="@(() => newBlog.Popularity)" />
+    </div>
+
+    <div class="form-group">
+        <label for="upVote">Up Vote:</label>
+        <InputNumber id="upVote" @bind-Value="newBlog.UpVote" class="form-control" />
+        <ValidationMessage For="@(() => newBlog.UpVote)" />
+    </div>
+
+    <div class="form-group">
+        <label for="downVote">Down Vote:</label>
+        <InputNumber id="downVote" @bind-Value="newBlog.DownVote" class="form-control" />
+        <ValidationMessage For="@(() => newBlog.DownVote)" />
+    </div>
+
+    <div class="form-group">
+        <label for="image">Image:</label>
+        <InputFile id="image" OnChange="HandleImageUpload" accept="image/*" class="form-control" />
+    </div>
+    <div>
+        @if (errorMessage != null)
+        {
+            <p class="text-danger">@errorMessage</p>
+        }
+    </div>
+
+    @if (errorMessage == null)
+    {
+        <button type="submit" class="btn btn-primary mt-1">Add Blog</button>
+    }
+</EditForm>
+
+@code {
+    private Blog newBlog = new Blog();
+    private IBrowserFile selectedImage;
+    private string errorMessage;
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs e)
+    {
+        selectedImage = e.File;
+
+        if (selectedImage.Size > 3 * 1024 * 1024)
+        {
+            errorMessage = "Image size exceeds 3 MB limit, please select image of size less than 3 mb";
+            return;
+        }
+        else
+        {
+            errorMessage = null;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            if (selectedImage != null)
+            {
+                var formFileContent = new StreamContent(selectedImage.OpenReadStream());
+                formFileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(selectedImage.ContentType);
+
+                using (var formData = new MultipartFormDataContent())
+                {
+                    formData.Add(new StringContent(newBlog.Title), "Title");
+                    formData.Add(new StringContent(newBlog.Description), "Description");
+                    formData.Add(new StringContent(newBlog.UserId ?? "cb2030a7-9ce3-43a7-9827-39255dc1f185"), "UserId");
+                    formData.Add(new StringContent(newBlog.Popularity?.ToString() ?? "1"), "Popularity");
+                    formData.Add(new StringContent(newBlog.UpVote?.ToString() ?? "1"), "UpVote");
+                    formData.Add(new StringContent(newBlog.DownVote?.ToString() ?? "1"), "DownVote");
+                    // newBlog.UpdatedDateTime = DateTime.UtcNow;
+                    // formData.Add(new StringContent(newBlog.UpdatedDateTime?.ToString() ?? DateTime.Now.ToString()), "UpdatedDateTime");
+
+
+                    formData.Add(formFileContent, "image", selectedImage.Name);
+
+                    var response = await Http.PostAsync("https://localhost:7241/AddBlog", formData);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        NavigationManager.NavigateTo("/blogs");
+                    }
+                    else
+                    {
+                        var errorResponse = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"Error: {errorResponse}");
+                    }
+                }
+            }
+            else
+            {
+
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+            Console.WriteLine($"Exception: {ex.Message}");
+        }
+    }
+
+
+}

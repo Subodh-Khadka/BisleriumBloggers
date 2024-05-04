@@ -1,0 +1,94 @@
+﻿@page "/allBlog"
+@using Domain.Bislerium
+@using Application.Bislerium
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@rendermode @(new InteractiveServerRenderMode(false));
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
+<style>
+    .blogs-record img{
+        height:100px;
+        width:100px;
+    }
+</style>
+
+<h1 class="text-center my-4">Blogs</h1>
+
+<div class="container blogs-record">    
+    <div class="row">
+        @foreach (var blog in blogList)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="https://localhost:7241/@blog.Image" alt="@blog.Id"/>
+                    <div class="card-body">
+                        <h5 class="card-title">@blog.Title</h5>
+                        <p class="card-text">@blog.Description</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">@blog.CreatedDateTime.ToShortDateString()</small>
+                            <button class="btn btn-success" @onclick="() => ViewBlog(blog.Id)">View</button>
+                          @*   <div>
+                                <button class="btn btn-primary" @onclick="@(() => UpVote(blog.Id))"><i class="bi bi-hand-thumbs-up"></i></button>
+                                <button class="btn btn-danger" @onclick="@(() => DownVote(blog.Id))"><i class="bi bi-hand-thumbs-down"></i></button>
+                            </div> *@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    List<Blog> blogList = new List<Blog>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBlogs();
+    }
+
+    private async Task LoadBlogs()
+    {
+        var result = await Http.GetFromJsonAsync<List<Blog>>("https://localhost:7241/GetAllBlogs");
+        if (result != null)
+        {
+            blogList = result;
+        }
+    }
+
+    private async Task ViewBlog(Guid blogId)
+    {
+        try
+        {
+            var blog = await Http.GetFromJsonAsync<Blog>($"https://localhost:7241/GetBlogById/{blogId}");
+            if (blog != null)
+            {
+                NavigationManager.NavigateTo($"/blogDetail/{blog.Id}");
+            }
+            else
+            {
+                Console.WriteLine("Blog not found!");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception: {ex.Message}");
+        }
+    }
+
+
+    private void UpVote(Guid blogId)
+    {
+
+    }
+
+    private void DownVote(Guid blogId)
+    {
+        
+    }
+}

@@ -1,0 +1,44 @@
+﻿@using Domain.Bislerium
+@model List<Blog>
+
+<h6 class="display-4 text-center mt-2">Blogs</h6>
+
+@if (Model != null && Model.Any())
+{
+    <div class="container mt-5">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Image</th>
+                    <th>Created Date</th>
+                    <th>User</th>
+                    <th>Popularity</th>
+                    <th>UpVote</th>
+                    <th>DownVote</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var blog in Model)
+                {
+                    <tr>
+                        <td>@blog.Title</td>
+                        <td>@blog.Description</td>
+                        <td><img src="https://localhost:7241/@blog.Image" alt="@blog.Id" style="max-width: 40%; max-height:40%" class="rounded-circle" /></td>
+                        <td>@blog.CreatedDateTime.ToShortDateString()</td>
+                        <td>@blog.Popularity</td>
+                        <td>@blog.UpVote</td>
+                        <td>@blog.DownVote</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="container mt-5">
+        <p>No blogs available.</p>
+    </div>
+}

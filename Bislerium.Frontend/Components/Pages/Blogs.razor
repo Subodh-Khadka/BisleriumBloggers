@@ -1,0 +1,116 @@
+﻿@page "/blogs"
+@using Domain.Bislerium
+@using Application.Bislerium 
+@rendermode InteractiveServer
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IBlogService BlogService
+
+<style>
+    .table{
+        font-size:smaller;
+    }
+</style>
+
+<h5>Blog Records</h5>
+
+<button class="btn btn-sm btn-primary mb-2  " @onclick="@GoToAddBlog">Add Blog</button>
+
+@if (blogList == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                @* <th>BId</th>
+                <th>UID</th> *@
+                <th>Title</th>
+                <th>Description</th>
+                <th>Image</th>
+                <th>CreatedDateTime</th>
+                <th>Popularity</th>
+                <th>UpVote</th>
+                <th>DownVote</th>
+                <th>UpdatedDate</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var blog in blogList)
+            {
+                <tr>   
+                    <td>@blog.Title</td>
+                    <td>@blog.Description</td>
+                    <img src="https://localhost:7241/@blog.Image" alt="@blog.Id" style="max-width: 50%; max-height:40%" class="rounded-circle" />
+                    <td>@blog.CreatedDateTime.ToString("yyyy-MM-dd")</td>
+                    <td>@blog.Popularity</td>
+                    <td>@blog.UpVote</td>
+                    <td>@blog.DownVote</td>
+                    <td>@blog.UpdatedDateTime.ToString("yyyy-MM-dd")</td>
+                    <td class="btn-group gap-1">
+                        <button class="btn btn-sm btn-primary" @onclick="() => EditBlog(blog.Id)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteBlog(blog.Id)">Del</button>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<Blog> blogList = new List<Blog>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBlogs();
+    }
+
+    private async Task LoadBlogs()
+    {
+        Http.DefaultRequestHeaders.Add("Authorization", "Bearer eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTUxMiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQWRtaW5AZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoiQWRtaW5AZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiI4ZjZhZWQ5Ni1iMzAwLTQ0ZWUtYmJjMy1kMDg1NTc2MTNhYWMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTcxNTIzOTg1MCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NzI0MSIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjcyNDEifQ.U8pm6CN1Ug1WGhBDClXZE7Ve7c-GT9mnvR3wmI-ZIliFiS5-OusChBxP9K9Sh4wwvpF2vKcfZw9vRIQU-45N4A");
+
+        var result = await Http.GetFromJsonAsync<List<Blog>>("https://localhost:7241/GetAllBlogs");
+        if (result != null)
+        {
+            blogList = result;
+        }
+    }
+
+    private void GoToAddBlog()
+    {
+        NavigationManager.NavigateTo("/addblog");
+    }
+
+    //edit Blog
+    private void EditBlog(Guid blogId)
+    {
+        NavigationManager.NavigateTo($"/editBlog/{blogId}");
+    }
+    
+    //delete Blog
+    private async Task DeleteBlog(Guid blogId)
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"https://localhost:7241/DeleteBlog/{blogId}");
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadBlogs();
+            }
+            else
+            {
+             
+            }
+        }
+        catch (Exception ex)
+        {
+            
+        }
+    }
+
+
+}

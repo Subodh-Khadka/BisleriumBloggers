@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain.Bislerium", "Domain.Bislerium\Domain.Bislerium.csproj", "{3817DD34-BC37-40D5-ABD1-34215067C9C8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.Bislerium", "Application.Bislerium\Application.Bislerium.csproj", "{F5E39D0B-AC39-456A-A5AA-A238318C6D44}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.Bislerium", "Infrastructure.Bislerium\Infrastructure.Bislerium.csproj", "{7062DBE7-32CB-45EE-8DA1-5D9180C6A750}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Presentation.Bislerium", "Presentation.Bislerium\Presentation.Bislerium.csproj", "{92F75D9C-7448-4BBA-8C88-22EEA0087CD0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bislerium.Frontend", "Bislerium.Frontend\Bislerium.Frontend.csproj", "{8D6AE513-4E48-465A-8268-0E6835EA9189}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bislerium.MVC", "Bislerium.MVC\Bislerium.MVC.csproj", "{52DAFF0C-F957-479C-BC2B-AD4BC2783F7E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3817DD34-BC37-40D5-ABD1-34215067C9C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3817DD34-BC37-40D5-ABD1-34215067C9C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3817DD34-BC37-40D5-ABD1-34215067C9C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3817DD34-BC37-40D5-ABD1-34215067C9C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5E39D0B-AC39-456A-A5AA-A238318C6D44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5E39D0B-AC39-456A-A5AA-A238318C6D44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5E39D0B-AC39-456A-A5AA-A238318C6D44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5E39D0B-AC39-456A-A5AA-A238318C6D44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7062DBE7-32CB-45EE-8DA1-5D9180C6A750}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7062DBE7-32CB-45EE-8DA1-5D9180C6A750}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7062DBE7-32CB-45EE-8DA1-5D9180C6A750}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7062DBE7-32CB-45EE-8DA1-5D9180C6A750}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92F75D9C-7448-4BBA-8C88-22EEA0087CD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92F75D9C-7448-4BBA-8C88-22EEA0087CD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92F75D9C-7448-4BBA-8C88-22EEA0087CD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92F75D9C-7448-4BBA-8C88-22EEA0087CD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D6AE513-4E48-465A-8268-0E6835EA9189}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D6AE513-4E48-465A-8268-0E6835EA9189}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D6AE513-4E48-465A-8268-0E6835EA9189}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D6AE513-4E48-465A-8268-0E6835EA9189}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52DAFF0C-F957-479C-BC2B-AD4BC2783F7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52DAFF0C-F957-479C-BC2B-AD4BC2783F7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52DAFF0C-F957-479C-BC2B-AD4BC2783F7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52DAFF0C-F957-479C-BC2B-AD4BC2783F7E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {464E8AFA-6BD9-4177-BA3D-3B3056E27697}
+	EndGlobalSection
+EndGlobal
