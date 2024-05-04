@@ -1,5 +1,7 @@
 using Bislerium.MVC.Models;
 using Domain.Bislerium;
+using Domain.Bislerium.ViewModels;
+using Infrastructure.Bislerium.Data;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
@@ -12,11 +14,13 @@ namespace Bislerium.MVC.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly HttpClient _httpClient;
+        private readonly ApplicationDbContext _db;
 
-        public HomeController(ILogger<HomeController> logger, HttpClient httpClient)
+        public HomeController(ILogger<HomeController> logger, HttpClient httpClient, ApplicationDbContext db)
         {
             _logger = logger;
             _httpClient = httpClient;
+            _db = db;
         }
 
         public async Task<IActionResult> Index()
@@ -38,11 +42,18 @@ namespace Bislerium.MVC.Controllers
         {
             try
             {
-                var blog = await _httpClient.GetFromJsonAsync<Blog>($"https://localhost:7241/GetBlogById/{blogId}");
+                var blogResponse = await _httpClient.GetFromJsonAsync<Blog>($"https://localhost:7241/GetBlogById/{blogId}");
+                var commentsResponse = await _httpClient.GetFromJsonAsync<List<Comment>>($"https://localhost:7241/GetCommentsByBlogId?blogId={blogId}");
 
-                if (blog != null)
+                if (blogResponse != null && commentsResponse != null)
                 {
-                    return View(blog);
+                    var viewModel = new BlogDetailVm
+                    {
+                        Blog = blogResponse,
+                        Comments = commentsResponse
+                    };
+
+                    return View(viewModel);
                 }
                 else
                 {
@@ -54,6 +65,7 @@ namespace Bislerium.MVC.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
 
         [HttpPost]
         public async Task<IActionResult> UpdateBlogUpVote(Guid blogId)
@@ -78,28 +90,28 @@ namespace Bislerium.MVC.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UpdateBlogDownVote(Guid blogId)
-        {
-            try
-            {
-                var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateBlogDownVote/{blogId}", null);
+        //[HttpPost]
+        //public async Task<IActionResult> UpdateCommentUpVote(Guid commentId)
+        //{
+        //    try
+        //    {
+        //        var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateCommentUpVote/{commentId}", null);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    return RedirectToAction("BlogDetail", new { blogId });
-                }
-                else
-                {
-                    // Handle unsuccessful response
-                    return RedirectToAction("Index");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
-            }
-        }
+        //        if (response.IsSuccessStatusCode)
+        //        {
+        //            return View(response);
+        //        }
+        //        else
+        //        {
+        //            // Handle unsuccessful response
+        //            return RedirectToAction("Index");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"An error occurred: {ex.Message}");
+        //    }
+        //}
 
 
         [HttpPost]
@@ -137,6 +149,59 @@ namespace Bislerium.MVC.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UpdateCommentUpVote(Guid commentId)
+        {
+            var comment = await _db.Comments.FindAsync(commentId);
+            var blog = await _db.Blogs.FindAsync(comment.BlogId);
+            var blogId = blog.Id;
+
+            try
+            {
+                var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateCommentUpVote/{commentId}", null);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("BlogDetail", new { blogId });
+                }
+                else
+                {
+                    // Handle unsuccessful response
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateCommentDownVote(Guid commentId)
+        {
+            var comment = await _db.Comments.FindAsync(commentId);
+            var blog = await _db.Blogs.FindAsync(comment.BlogId);
+            var blogId = blog.Id;
+
+            try
+            {
+                var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateCommentDownVote/{commentId}", null);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("BlogDetail", new { blogId });
+                }
+                else
+                {
+                    // Handle unsuccessful response
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
 
 
 

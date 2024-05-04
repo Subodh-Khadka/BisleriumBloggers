@@ -1,6 +1,7 @@
 ﻿using Application.Bislerium;
 using Domain.Bislerium;
 using Domain.Bislerium.ViewModels;
+using Infrastructure.Bislerium;
 using Infrastructure.Bislerium.Data;
 using Microsoft.AspNetCore.Mvc;
 
@@ -83,6 +84,34 @@ namespace Presentation.Bislerium.Controllers
         {
             var comments = await _commentService.GetCommentsByBlogId(blogId);
             return Ok(comments);
+        }
+
+        [HttpPut("UpdateCommentUpVote/{commentId}")]
+        public async Task<IActionResult> UpdateCommentUpVote(Guid commentId)
+        {
+            try
+            {
+                var updateComment = await _commentService.UpdateCommentUpVote(commentId);
+                return Ok(updateComment);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Blog not found");
+            }
+        }
+
+        [HttpPut("UpdateCommentDownVote/{commentId}")]
+        public async Task<IActionResult> UpdateCommentDownVote(Guid commentId)
+        {
+            try
+            {
+                var updateComment = await _commentService.UpdateCommentDownVote(commentId);
+                return Ok(updateComment);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Blog not found");
+            }
         }
 
     }
