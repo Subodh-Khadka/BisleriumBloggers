@@ -23,20 +23,64 @@ namespace Bislerium.MVC.Controllers
             _db = db;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortBy)
         {
-            var response = await _httpClient.GetAsync("https://localhost:7241/GetAllBlogs");
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var content = await response.Content.ReadAsStringAsync();
-                var blogs = JsonConvert.DeserializeObject<List<Blog>>(content);
-                return View(blogs);
+                var response = await _httpClient.GetAsync("https://localhost:7241/GetAllBlogs");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var blogs = JsonConvert.DeserializeObject<List<Blog>>(content);
+
+                    // Check if sorting criteria is provided
+                    if (!string.IsNullOrEmpty(sortBy))
+                    {
+                        var sortedResponse = await _httpClient.GetAsync($"https://localhost:7241/GetSortedBlogs?sortBy={sortBy}");
+
+                        if (sortedResponse.IsSuccessStatusCode)
+                        {
+                            var sortedContent = await sortedResponse.Content.ReadAsStringAsync();
+                            var sortedBlogs = JsonConvert.DeserializeObject<List<Blog>>(sortedContent);
+                            return View(sortedBlogs);
+                        }
+                        else
+                        {
+                            return View("Error");
+                        }
+                    }
+                    else
+                    {
+                        return View(blogs);
+                    }
+                }
+                else
+                {
+                    return View("Error");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return View("Error");
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
+
+        //public async Task<IActionResult> Index()
+        //{
+        //    var response = await _httpClient.GetAsync("https://localhost:7241/GetAllBlogs");
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        var content = await response.Content.ReadAsStringAsync();
+        //        var blogs = JsonConvert.DeserializeObject<List<Blog>>(content);
+        //        return View(blogs);
+        //    }
+        //    else
+        //    {
+        //        return View("Error");
+        //    }
+        //}
 
         public async Task<IActionResult> BlogDetail(Guid blogId)
         {
@@ -89,29 +133,28 @@ namespace Bislerium.MVC.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> UpdateBlogDownVote(Guid blogId)
+        {
+            try
+            {
+                var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateBlogDownVote/{blogId}", null);
 
-        //[HttpPost]
-        //public async Task<IActionResult> UpdateCommentUpVote(Guid commentId)
-        //{
-        //    try
-        //    {
-        //        var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateCommentUpVote/{commentId}", null);
-
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            return View(response);
-        //        }
-        //        else
-        //        {
-        //            // Handle unsuccessful response
-        //            return RedirectToAction("Index");
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"An error occurred: {ex.Message}");
-        //    }
-        //}
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("BlogDetail", new { blogId });
+                }
+                else
+                {
+                    // Handle unsuccessful response
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
 
 
         [HttpPost]

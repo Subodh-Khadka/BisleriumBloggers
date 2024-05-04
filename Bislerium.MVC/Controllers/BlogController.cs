@@ -55,6 +55,13 @@ namespace MVC.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Test(Blog newBlog, IFormFile image)
         {
+
+            if (image != null && image.Length > 3 * 1024 * 1024)
+            {
+                ModelState.AddModelError("Image", "The image size must be less than or equal to 3 MB.");
+                return View(newBlog); 
+            }
+
             var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim?.Value;
 
@@ -103,9 +110,8 @@ namespace MVC.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception
                 Console.WriteLine($"Exception: {ex.Message}");
-                ModelState.AddModelError(string.Empty, "An error occurred while processing your request.");
+                
                 return View(newBlog);
             }
         }
@@ -207,9 +213,7 @@ namespace MVC.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception
-                Console.WriteLine($"Exception: {ex.Message}");
-                ModelState.AddModelError(string.Empty, "An error occurred while processing your request.");
+                Console.WriteLine($"{ex}");   
                 return View("Error");
             }
         }

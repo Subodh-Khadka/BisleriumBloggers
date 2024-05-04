@@ -112,22 +112,13 @@ namespace Presentation.Bislerium.Controllers
             var result = await _blogService.GetAllBlogsUserId(userId);
             return Ok(result);
         }
+
+        [HttpGet("GetSortedBlogs")]
+        public async Task<IActionResult> GetSortedBlogs(string sortBy)
+        {
+            var sortedBlogs = await _blogService.GetSortedBlogs(sortBy);
+            return Ok(sortedBlogs);
+        }
+
     }
 }
-
-
-
-
-
-
-//[HttpPut("UpdateBlogVotes")]
-//public async Task<IActionResult> UpdateBlogVotes([FromBody] Blog blog)
-//{
-//    if (blog == null)
-//    {
-//        return BadRequest("Invalid blog data");
-//    }
-
-//    var updatedBlog = await _blogService.UpdateBlogVotes(blog);
-//    return Ok(updatedBlog);
-//}

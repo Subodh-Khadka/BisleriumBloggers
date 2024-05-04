@@ -18,5 +18,9 @@ namespace Application.Bislerium
         Task<Blog> UpdateBlogUpVote(Guid id); 
         Task<Blog> UpdateBlogDownVote(Guid id);
         Task<IEnumerable<Blog>> GetAllBlogsUserId(string userId);
+        Task<IEnumerable<Blog>> GetSortedBlogs(string sortBy);
+        Task UpVoteBlog(Guid blogId, string userId);
+        Task DownVoteBlog(Guid blogId, string userId);
+
     }
 }

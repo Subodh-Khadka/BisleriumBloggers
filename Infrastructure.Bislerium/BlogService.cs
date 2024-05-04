@@ -162,27 +162,31 @@ namespace Infrastructure.Bislerium
             return blogs;
         }
 
+        public async Task<IEnumerable<Blog>> GetSortedBlogs(string sortBy)
+        {
+            IQueryable<Blog> query = _db.Blogs.AsQueryable();
+
+            switch (sortBy.ToLower())
+            {
+                case "popularity":
+                    query = query.OrderByDescending(b => b.Popularity);
+                    break;
+                case "recency":
+                    query = query.OrderByDescending(b => b.CreatedDateTime);
+                    break;
+                case "random":
+                    query = query.OrderBy(b => Guid.NewGuid());
+                    break;
+                default:
+                    query = query.OrderByDescending(b => b.CreatedDateTime);
+                    break;
+            }
+
+            return await query.ToListAsync();
+        }
+
+
     }
 }
 
 
-
-
-
-
-//public async Task<Blog> UpdateBlogVotes(Guid blogId)
-//{
-//    var existingBlog = await _db.Blogs.FindAsync(blogId);
-
-//    if (existingBlog == null)
-//    {
-//        throw new KeyNotFoundException("Blog not found");
-//    }
-
-//    existingBlog.UpVote++;
-//    existingBlog.DownVote--;
-
-//    _db.Update(existingBlog);
-//    await _db.SaveChangesAsync();
-//    return existingBlog;
-//}

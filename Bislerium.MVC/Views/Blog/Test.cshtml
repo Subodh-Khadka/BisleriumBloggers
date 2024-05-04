@@ -17,32 +17,14 @@
         <textarea asp-for="Description" class="form-control"></textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
-   @*  <div class="form-group" typeof="">
-        <label asp-for="UserId" class="control-label"></label>
-        <input asp-for="UserId" class="form-control" />
-        <span asp-validation-for="UserId" class="text-danger"></span>
-    </div> *@
         <input asp-for="UserId" type="hidden" class="form-control" />
         <input asp-for="UpVote" type="hidden" class="form-control" />
         <input asp-for="DownVote" type="hidden" class="form-control" />
-    @* <div class="form-group">
-        <label asp-for="Popularity" class="control-label"></label>
-        <input asp-for="Popularity" class="form-control" />
-        <span asp-validation-for="Popularity" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="UpVote" class="control-label"></label>
-        <input asp-for="UpVote" class="form-control" />
-        <span asp-validation-for="UpVote" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="DownVote" class="control-label"></label>
-        <input asp-for="DownVote" class="form-control" />
-        <span asp-validation-for="DownVote" class="text-danger"></span>
-    </div> *@
+  
     <div class="form-group">
         <label asp-for="Image" class="control-label"></label>
-        <input type="file" name="image" asp-for="Image" class="form-control" />
+        @* <input type="file" name="image" asp-for="Image" class="form-control" /> *@
+        <input type="file" name="image" asp-for="Image" class="form-control" accept="image/*" maxlength="3145728" />
         <span asp-validation-for="Image" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Save</button>
