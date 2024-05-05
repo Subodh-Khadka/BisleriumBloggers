@@ -21,8 +21,7 @@ namespace Domain.Bislerium
         public double? Popularity { get; set; }
         public int? UpVote { get; set; }
         public int? DownVote { get; set; }
-
-        
+        public int? CommentCount {  get; set; }
         public string? Image { get; set; }
 
         // Navigation property for comments

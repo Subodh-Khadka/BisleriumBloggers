@@ -166,9 +166,16 @@ namespace Bislerium.MVC.Controllers
             {
                 var comment = new Comment
                 {
+
                     BlogId = blogId,
                     Content = content,
                     UserId = userId,
+                    UpVote = 0,
+                    DownVote = 0,
+                    Popularity = 0,
+                    CreatedDate = DateTime.Now,
+                    UpdateDate = DateTime.Now,
+                    Id = Guid.NewGuid(),
                 };
 
                 var json = JsonConvert.SerializeObject(comment);
@@ -184,6 +191,7 @@ namespace Bislerium.MVC.Controllers
                 }
                 else
                 {
+                    var popularityResponse = await _httpClient.PutAsync($"https://localhost:7241/CalculateBlogPopularity/{blogId}", null);
                     return RedirectToAction("Index");
                 }
             }

@@ -128,6 +128,13 @@ namespace Infrastructure.Bislerium
             var existingUpVote = await _db.Uovotes.FirstOrDefaultAsync(u => u.BlogId == blogId && u.UserId == userId);
             if (existingUpVote == null)
             {
+                var existingDownVote = await _db.DownVotes.FirstOrDefaultAsync(d => d.BlogId == blogId && d.UserId == userId);
+                if (existingDownVote != null)
+                {
+                    _db.DownVotes.Remove(existingDownVote);
+                    blog.DownVote--;
+                }
+
                 var newUpVote = new UpVote
                 {
                     Id = Guid.NewGuid(),
@@ -136,7 +143,7 @@ namespace Infrastructure.Bislerium
                     BlogId = blogId
                 };
                 _db.Uovotes.Add(newUpVote);
-                blog.UpVote++; 
+                blog.UpVote++;
             }
             else
             {
@@ -157,11 +164,17 @@ namespace Infrastructure.Bislerium
                 throw new KeyNotFoundException("Blog not found");
             }
 
-            
             var existingDownVote = await _db.DownVotes.FirstOrDefaultAsync(d => d.BlogId == blogId && d.UserId == userId);
             if (existingDownVote == null)
             {
-               
+                
+                var existingUpVote = await _db.Uovotes.FirstOrDefaultAsync(u => u.BlogId == blogId && u.UserId == userId);
+                if (existingUpVote != null)
+                {
+                    _db.Uovotes.Remove(existingUpVote);
+                    blog.UpVote--;
+                }
+
                 var newDownVote = new DownVote
                 {
                     Id = Guid.NewGuid(),
@@ -183,40 +196,7 @@ namespace Infrastructure.Bislerium
             return blog;
         }
 
-        //public async Task<Blog> UpdateBlogUpVote(Guid blogId)
-        //{
-        //    var blog = await _db.Blogs.FindAsync(blogId);
 
-        //    if (blog == null)
-        //    {
-        //        throw new KeyNotFoundException("Blog not found");
-        //    }
-
-        //    blog.UpVote++;
-
-        //    _db.Update(blog);
-        //    await _db.SaveChangesAsync();
-
-        //    return blog;
-        //}
-
-
-        //public async Task<Blog> UpdateBlogDownVote(Guid blogId)
-        //{
-        //    var blog = await _db.Blogs.FindAsync(blogId);
-
-        //    if (blog == null)
-        //    {
-        //        throw new KeyNotFoundException("Blog not found");
-        //    }
-
-        //    blog.DownVote++;
-
-        //    _db.Update(blog);
-        //    await _db.SaveChangesAsync();
-
-        //    return blog;
-        //}
 
         public async Task<IEnumerable<Blog>> GetAllBlogsUserId(string userId)
         {
@@ -250,7 +230,7 @@ namespace Infrastructure.Bislerium
 
             return await query.ToListAsync();
         }
-
+            
         public async Task<double> CalculateBlogPopularity(Guid blogId)
         {
             var blog = await _db.Blogs.FindAsync(blogId);
@@ -266,7 +246,7 @@ namespace Infrastructure.Bislerium
 
             double popularity = upvoteWeightage * (blog.UpVote ?? 0) +
                                 downvoteWeightage * (blog.DownVote ?? 0) +
-                                commentWeightage * (blog.Comments?.Count ?? 0);
+                                commentWeightage * (blog.CommentCount ?? 0);
 
             blog.Popularity = popularity;
             _db.Blogs.Update(blog);
@@ -278,3 +258,37 @@ namespace Infrastructure.Bislerium
 }
 
 
+//public async Task<Blog> UpdateBlogUpVote(Guid blogId)
+//{
+//    var blog = await _db.Blogs.FindAsync(blogId);
+
+//    if (blog == null)
+//    {
+//        throw new KeyNotFoundException("Blog not found");
+//    }
+
+//    blog.UpVote++;
+
+//    _db.Update(blog);
+//    await _db.SaveChangesAsync();
+
+//    return blog;
+//}
+
+
+//public async Task<Blog> UpdateBlogDownVote(Guid blogId)
+//{
+//    var blog = await _db.Blogs.FindAsync(blogId);
+
+//    if (blog == null)
+//    {
+//        throw new KeyNotFoundException("Blog not found");
+//    }
+
+//    blog.DownVote++;
+
+//    _db.Update(blog);
+//    await _db.SaveChangesAsync();
+
+//    return blog;
+//}

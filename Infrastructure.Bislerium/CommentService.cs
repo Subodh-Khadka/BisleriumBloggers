@@ -23,18 +23,6 @@ namespace Infrastructure.Bislerium
             _db = db;
         }
 
-        //public async Task<Comment> AddComment(Comment comment)
-        //{
-        //    if (comment == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(comment));
-        //    }
-
-        //    var result = await _db.Comments.AddAsync(comment);
-        //    await _db.SaveChangesAsync();
-        //    return result.Entity;
-        //}
-
         public async Task<Comment> AddComment(Comment comment)
         {
             if (comment == null)
@@ -52,8 +40,8 @@ namespace Infrastructure.Bislerium
             var result = await _db.Comments.AddAsync(comment);
             await _db.SaveChangesAsync();
 
-            blog.Comments.Add(comment);
-            await _db.SaveChangesAsync();
+            blog.CommentCount++;
+            _db.Blogs.Update(blog);
 
             return result.Entity;
         }

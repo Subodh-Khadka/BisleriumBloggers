@@ -83,6 +83,7 @@ namespace MVC.Frontend.Controllers
                 formData.Add(new StringContent(newBlog.Popularity?.ToString() ?? "0"), "Popularity");
                 formData.Add(new StringContent(newBlog.UpVote?.ToString() ?? "0"), "UpVote");
                 formData.Add(new StringContent(newBlog.DownVote?.ToString() ?? "0"), "DownVote");
+                formData.Add(new StringContent(newBlog.CommentCount?.ToString() ?? "0"), "CommentCount");
 
                 if (image != null && image.Length > 0)
                 {
@@ -132,8 +133,7 @@ namespace MVC.Frontend.Controllers
             }
             else
             {
-                // If the request fails, return an error view or handle the error as needed
-                return View("Error");
+                return View("Error","Home");
             }
         }
 
@@ -215,19 +215,10 @@ namespace MVC.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ex}");   
+                Console.WriteLine($"{ex}");
                 return View("Error");
             }
         }
-
-
-
-
-
-
-
-
-
 
     }
 }

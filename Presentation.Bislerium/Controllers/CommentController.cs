@@ -20,17 +20,9 @@ namespace Presentation.Bislerium.Controllers
 
 
         [HttpPost("AddComment")]
-        [Consumes("application/json")]
-        public async Task<IActionResult> AddComment([FromBody] Comment comment, string userId)
+        public async Task<IActionResult> AddComment([FromBody] Comment comment)
         {
-
-            comment.Id = Guid.NewGuid();
-            comment.CreatedDate = DateTime.Now;
-            comment.UpdateDate = DateTime.Now;
-            //comment.UserId = userId;
-            comment.DownVote = 0;
-            comment.UpVote = 0;
-            comment.Popularity = 0;
+            
 
             if (comment == null)
             {

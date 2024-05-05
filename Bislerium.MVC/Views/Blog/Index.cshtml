@@ -29,6 +29,7 @@
                     <th>Popularity</th>
                     <th>UpVote</th>
                     <th>DownVote</th>
+                    <th>Comment</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -43,6 +44,7 @@
                         <td>@blog.Popularity</td>
                         <td>@blog.UpVote</td>
                         <td>@blog.DownVote</td>
+                        <td>@blog.CommentCount</td>
                         <td class="d-flex gap-1">
                             <form asp-action="Edit" asp-controller="Blog">
                                 <input type="hidden" name="blogId" value="@blog.Id" />
