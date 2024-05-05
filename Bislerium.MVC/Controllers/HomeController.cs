@@ -35,7 +35,6 @@ namespace Bislerium.MVC.Controllers
                     var content = await response.Content.ReadAsStringAsync();
                     var blogs = JsonConvert.DeserializeObject<List<Blog>>(content);
 
-                    // Check if sorting criteria is provided
                     if (!string.IsNullOrEmpty(sortBy))
                     {
                         var sortedResponse = await _httpClient.GetAsync($"https://localhost:7241/GetSortedBlogs?sortBy={sortBy}");
@@ -251,7 +250,6 @@ namespace Bislerium.MVC.Controllers
 
             try
             {
-                //var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateCommentDownVote/{commentId}", null);
 
                 var requestUrl = $"https://localhost:7241/UpdateCommentDownVote/{commentId}?userId={userId}";
                 var response = await _httpClient.PutAsync(requestUrl, null);

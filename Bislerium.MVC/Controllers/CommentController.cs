@@ -1,6 +1,7 @@
 ﻿using Domain.Bislerium;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace Bislerium.MVC.Controllers
 {
@@ -35,23 +36,48 @@ namespace Bislerium.MVC.Controllers
         {
             try
             {
+                var existingCommentResponse = await _httpClient.GetAsync($"https://localhost:7241/GetCommentById/{comment.Id}");
+                if (!existingCommentResponse.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                var existingCommentJson = await existingCommentResponse.Content.ReadAsStringAsync();
+                var existingComment = JsonConvert.DeserializeObject<Comment>(existingCommentJson);
+
                 var response = await _httpClient.PutAsJsonAsync($"https://localhost:7241/UpdateComment", comment);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return RedirectToAction(nameof(HomeController.BlogDetail), "Home", new { blogId = blogId });
+                    var historyData = new
+                    {
+                        EntityId = existingComment.Id,
+                        EntityType = "Comment",
+                        Action = "Edit",
+                        UpdatedBy = comment.UserId,
+                        UpdatedDate = DateTime.Now,
+                        OldVContent = existingComment.Content,
+                        NewContent = comment.Content
+                    };
 
+                    var jsonContent = new StringContent(JsonConvert.SerializeObject(historyData), Encoding.UTF8, "application/json");
+                    var historyResponse = await _httpClient.PostAsync("https://localhost:7241/api/History/AddHistory", jsonContent);
+
+                    if (!historyResponse.IsSuccessStatusCode)
+                    {
+                        return RedirectToAction("Error", "Home"); 
+                    }
                 }
-                else
-                {
-                    return RedirectToAction("Index");
-                }
+
+                return RedirectToAction(nameof(HomeController.BlogDetail), "Home", new { blogId = blogId });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
+                return StatusCode(500, $"{ex.Message}");
             }
         }
+
+
 
         [HttpPost]
         public async Task<IActionResult> DeleteComment(Guid commentId,Guid blogId)
@@ -67,7 +93,6 @@ namespace Bislerium.MVC.Controllers
                 }
                 else
                 {
-                    // Handle unsuccessful response
                     return RedirectToAction("Index");
                 }
             }

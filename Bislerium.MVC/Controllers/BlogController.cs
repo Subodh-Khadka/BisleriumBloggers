@@ -28,8 +28,8 @@ namespace MVC.Frontend.Controllers
             var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
             {
-
-                return Unauthorized();
+                
+                return Unauthorized(); 
             }
 
             var userId = userIdClaim.Value;
@@ -61,7 +61,7 @@ namespace MVC.Frontend.Controllers
             if (image != null && image.Length > 3 * 1024 * 1024)
             {
                 ModelState.AddModelError("Image", "The image size must be less than or equal to 3 MB.");
-                return View(newBlog);
+                return View(newBlog); 
             }
 
             var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
@@ -89,7 +89,7 @@ namespace MVC.Frontend.Controllers
                 {
                     var imageContent = new StreamContent(image.OpenReadStream());
                     imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(image.ContentType);
-                    formData.Add(imageContent, "image", image.FileName);
+                    formData.Add(imageContent, "image", image.FileName); 
                 }
 
                 using (var client = new HttpClient())
@@ -131,10 +131,9 @@ namespace MVC.Frontend.Controllers
             }
             else
             {
-                return View("Error", "Home");
+                return View("Error","Home");
             }
         }
-
 
         [HttpPost]
         public async Task<IActionResult> EditBlog(Guid blogId, Blog updatedBlog, IFormFile image)
@@ -149,78 +148,75 @@ namespace MVC.Frontend.Controllers
 
             try
             {
-                var formData = new MultipartFormDataContent();
-
-                formData.Add(new StringContent(updatedBlog.Id.ToString()), "Id");
-                formData.Add(new StringContent(blogId.ToString()), "blogId");
-                formData.Add(new StringContent(updatedBlog.Title), "Title");
-                formData.Add(new StringContent(updatedBlog.Description), "Description");
-                formData.Add(new StringContent(updatedBlog.UserId ?? userId), "UserId");
-                formData.Add(new StringContent(updatedBlog.Popularity?.ToString() ?? "0"), "Popularity");
-                formData.Add(new StringContent(updatedBlog.UpVote?.ToString() ?? "0"), "UpVote");
-                formData.Add(new StringContent(updatedBlog.DownVote?.ToString() ?? "0"), "DownVote");
-
-                if (image != null && image.Length > 0)
+                using (var httpClient = new HttpClient())
                 {
-                    var imageContent = new StreamContent(image.OpenReadStream());
-                    imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(image.ContentType);
-                    formData.Add(imageContent, "image", image.FileName);
-                }
-
-                using (var client = new HttpClient())
-                {
-                    var response = await client.PutAsync("https://localhost:7241/UpdateBlog", formData);
-
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Response Content: {responseContent}");
-
-                    if (response.IsSuccessStatusCode)
+                    // Retrieve the existing blog to get the old content
+                    var existingBlogResponse = await httpClient.GetAsync($"https://localhost:7241/GetBlogById/{blogId}");
+                    if (existingBlogResponse.IsSuccessStatusCode)
                     {
-                        // Populate data for UpdateHistory
-                        var historyData = new UpdateHistory
+                        var existingBlogJson = await existingBlogResponse.Content.ReadAsStringAsync();
+                        var existingBlog = JsonConvert.DeserializeObject<Blog>(existingBlogJson);
+
+                        var formData = new MultipartFormDataContent();
+                        formData.Add(new StringContent(existingBlog.Id.ToString()), "Id");
+                        formData.Add(new StringContent(blogId.ToString()), "blogId");
+                        formData.Add(new StringContent(updatedBlog.Title), "Title");
+                        formData.Add(new StringContent(updatedBlog.Description), "Description");
+                        formData.Add(new StringContent(updatedBlog.UserId ?? userId), "UserId");
+                        formData.Add(new StringContent(updatedBlog.Popularity?.ToString() ?? "0"), "Popularity");
+                        formData.Add(new StringContent(updatedBlog.UpVote?.ToString() ?? "0"), "UpVote");
+                        formData.Add(new StringContent(updatedBlog.DownVote?.ToString() ?? "0"), "DownVote");
+
+                        if (image != null && image.Length > 0)
                         {
-                            Id = Guid.NewGuid(),
-                            EntityId = blogId,
-                            EntityType = "Blog",
-                            Action = "Update",
-                            UpdatedBy = userId,
-                            UpdatedDate = DateTime.Now,
-                            OldVContent = "", // Add logic to get old content if needed
-                            NewContent = JsonConvert.SerializeObject(updatedBlog)
-                        };
+                            var imageContent = new StreamContent(image.OpenReadStream());
+                            imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(image.ContentType);
+                            formData.Add(imageContent, "image", image.FileName);
+                        }
 
-                        // Convert to JSON
-                        var jsonContent = new StringContent(JsonConvert.SerializeObject(historyData), Encoding.UTF8, "application/json");
-
-                        // Make POST request to add history
-                        var historyResponse = await client.PostAsync("https://localhost:7241/AddHistory", jsonContent);
-
-                        if (historyResponse.IsSuccessStatusCode)
+                        var response = await httpClient.PutAsync("https://localhost:7241/UpdateBlog", formData);
+                        if (response.IsSuccessStatusCode)
                         {
-                            return RedirectToAction("Index", "Home");
+                            var historyData = new
+                            {
+                                EntityId = existingBlog.Id,
+                                EntityType = "Blog",
+                                Action = "Edit",
+                                UpdatedBy = userId,
+                                UpdatedDate = DateTime.Now,
+                                OldVContent = existingBlog.Description, 
+                                NewContent = updatedBlog.Description,
+                                //NewContent = JsonConvert.SerializeObject(updatedBlog)
+                            };
+
+                            var jsonContent = new StringContent(JsonConvert.SerializeObject(historyData), Encoding.UTF8, "application/json");
+
+                            var historyResponse = await httpClient.PostAsync("https://localhost:7241/api/History/AddHistory", jsonContent);
+                            if (!historyResponse.IsSuccessStatusCode)
+                            {
+                                return RedirectToAction("Error","Home");   
+                            }
+
+                            return RedirectToAction("Index", "Blog");
                         }
                         else
                         {
-                            var errorResponse = await historyResponse.Content.ReadAsStringAsync();
-                            ModelState.AddModelError(string.Empty, errorResponse);
-                            return View(updatedBlog);
+                            return View("Error","Home");
                         }
-                        return RedirectToAction("Index", "Home");
                     }
                     else
                     {
-                        var errorResponse = await response.Content.ReadAsStringAsync();
-                        ModelState.AddModelError(string.Empty, errorResponse);
-                        return View(updatedBlog);
+                        return View("Error","Home");
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return View(updatedBlog);
+                return View("Error","Home");
             }
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Delete(Guid blogId)

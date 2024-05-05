@@ -1,10 +1,13 @@
-﻿@model Domain.Bislerium.Comment
+﻿@using System.Security.Claims
+@using Newtonsoft.Json
+@model Domain.Bislerium.Comment
 
 <h2>Edit Comment</h2>
 
 <form method="post" asp-action="Edit" asp-controller="Comment">
     <input type="hidden" asp-for="Id" />
     <input type="hidden" name="blogId" value="@Model.BlogId"/>
+    <input type="hidden" name="userId" value="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value" />
     <div class="form-group">
         <label asp-for="Content">Content:</label>
         <textarea class="form-control" asp-for="Content"></textarea>

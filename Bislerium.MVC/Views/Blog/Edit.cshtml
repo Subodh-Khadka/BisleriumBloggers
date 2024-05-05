@@ -19,6 +19,8 @@
                     <input asp-for="@Model.Title" class="form-control" />
                 </div>
 
+                <input type="hidden" name="title" value="@Model.Title" />
+
                 <div class="form-group">
                     <label asp-for="@Model.Description"></label>
                     <textarea asp-for="@Model.Description" class="form-control"></textarea>
