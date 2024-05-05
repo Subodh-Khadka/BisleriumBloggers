@@ -22,5 +22,7 @@ namespace Infrastructure.Bislerium.Data
         public DbSet<Reaction> Reactions { get; set; }
         public DbSet<UpVote> Uovotes{ get; set; }
         public DbSet<DownVote> DownVotes { get; set; }
+        public DbSet<CommentUpVote> CommentUpVotes { get; set; }
+        public DbSet<CommentDownVote> CommentDownVotes { get; set; }
     }
 }

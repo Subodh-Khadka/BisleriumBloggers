@@ -106,16 +106,40 @@ namespace Infrastructure.Bislerium
         }
 
 
-        public async Task<Comment> UpdateCommentUpVote(Guid blogId)
+        public async Task<Comment> UpdateCommentUpVote(Guid commentId, string userId)
         {
-            var comment = await _db.Comments.FindAsync(blogId);
+            var comment = await _db.Comments.FindAsync(commentId);
 
             if (comment == null)
             {
-                throw new KeyNotFoundException("Blog not found");
+                throw new KeyNotFoundException("Comment not found");
             }
 
-            comment.UpVote++;
+            var existingUpVote = await _db.CommentUpVotes.FirstOrDefaultAsync(u => u.CommentId == commentId && u.UserId == userId);
+            if (existingUpVote == null)
+            {
+                var existingDownVote = await _db.CommentDownVotes.FirstOrDefaultAsync(d => d.CommentId == commentId && d.UserId == userId);
+                if (existingDownVote != null)
+                {
+                    _db.CommentDownVotes.Remove(existingDownVote);
+                    comment.DownVote--;
+                }
+
+                var newUpVote = new CommentUpVote
+                {
+                    Id = Guid.NewGuid(),
+                    UpVoteDate = DateTime.Now,
+                    UserId = userId,
+                    CommentId = commentId
+                };
+                _db.CommentUpVotes.Add(newUpVote);
+                comment.UpVote++;
+            }
+            else
+            {
+                _db.CommentUpVotes.Remove(existingUpVote);
+                comment.UpVote--;
+            }
 
             _db.Update(comment);
             await _db.SaveChangesAsync();
@@ -123,16 +147,40 @@ namespace Infrastructure.Bislerium
             return comment;
         }
 
-        public async Task<Comment> UpdateCommentDownVote(Guid blogId)
+        public async Task<Comment> UpdateCommentDownVote(Guid commentId, string userId)
         {
-            var comment = await _db.Comments.FindAsync(blogId);
+            var comment = await _db.Comments.FindAsync(commentId);
 
             if (comment == null)
             {
-                throw new KeyNotFoundException("Blog not found");
+                throw new KeyNotFoundException("Comment not found");
             }
 
-            comment.DownVote++;
+            var existingDownVote = await _db.CommentDownVotes.FirstOrDefaultAsync(d => d.CommentId == commentId && d.UserId == userId);
+            if (existingDownVote == null)
+            {
+                var existingUpVote = await _db.CommentUpVotes.FirstOrDefaultAsync(u => u.CommentId == commentId && u.UserId == userId);
+                if (existingUpVote != null)
+                {
+                    _db.CommentUpVotes.Remove(existingUpVote);
+                    comment.UpVote--;
+                }
+
+                var newDownVote = new CommentDownVote
+                {
+                    Id = Guid.NewGuid(),
+                    DownVoteDate = DateTime.Now,
+                    UserId = userId,
+                    CommentId = commentId
+                };
+                _db.CommentDownVotes.Add(newDownVote);
+                comment.DownVote++;
+            }
+            else
+            {
+                _db.CommentDownVotes.Remove(existingDownVote);
+                comment.DownVote--;
+            }
 
             _db.Update(comment);
             await _db.SaveChangesAsync();
@@ -141,3 +189,5 @@ namespace Infrastructure.Bislerium
         }
     }
 }
+
+

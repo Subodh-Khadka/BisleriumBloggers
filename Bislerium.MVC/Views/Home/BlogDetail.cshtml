@@ -16,12 +16,12 @@
             <div class="btn btn-group gap-2">
                 <form method="post" action="@Url.Action("UpdateBlogUpVote", "Home")">
                     <input type="hidden" name="blogId" value="@Model.Blog.Id" />
-                    <input type="hidden" name="userId" value="@Model.UserId" />
+                    @* <input type="hidden" name="userId" value="@Model.UserId" /> *@
                     <button type="submit" class="btn btn-sm btn-primary">@Model.Blog.UpVote <i class="bi bi-hand-thumbs-up"></i> </button>
                 </form>
                 <form method="post" action="@Url.Action("UpdateBlogDownVote", "Home")">
                     <input type="hidden" name="blogId" value="@Model.Blog.Id" />
-                    <input type="hidden" name="userId" value="@Model.UserId" />
+                    @* <input type="hidden" name="userId" value="@Model.UserId" /> *@
                     <button type="submit" class="btn btn-sm btn-primary">@Model.Blog.DownVote <i class="bi bi-hand-thumbs-down"></i> </button>
                 </form>
             </div>
@@ -42,10 +42,12 @@
                         <div class="btn btn-group gap-2">
                             <form method="post" action="@Url.Action("UpdateCommentUpVote", "Home")">
                                 <input type="hidden" name="commentId" value="@comment.Id" />
+                                @* <input type="hidden" name="userId" value="@comment.UserId" /> *@
                                 <button type="submit" class="btn btn-sm btn-primary">@comment.UpVote <i class="bi bi-hand-thumbs-up"></i> </button>
                             </form>
                             <form method="post" action="@Url.Action("UpdateCommentDownVote", "Home")">
                                 <input type="hidden" name="commentId" value="@comment.Id" />
+                                @* <input type="hidden" name="userId" value="@comment.UserId" /> *@
                                 <button type="submit" class="btn btn-sm btn-primary">@comment.DownVote <i class="bi bi-hand-thumbs-down"></i> </button>
                             </form>
                             @if (User.Identity.IsAuthenticated && comment.UserId == User.FindFirst(ClaimTypes.NameIdentifier)?.Value)

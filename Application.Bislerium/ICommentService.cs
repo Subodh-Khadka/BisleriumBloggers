@@ -15,7 +15,7 @@ namespace Application.Bislerium
         Task<Comment> UpdateComment(Comment comment);
         Task<Comment> DeleteComment(Guid Id);  
         Task<IEnumerable<Comment>> GetCommentsByBlogId(Guid BlogId);
-        Task<Comment> UpdateCommentUpVote(Guid id);
-        Task<Comment> UpdateCommentDownVote(Guid id);
+        Task<Comment> UpdateCommentUpVote(Guid id, string userId);
+        Task<Comment> UpdateCommentDownVote(Guid id, string userId);
     }
 }

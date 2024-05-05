@@ -79,11 +79,11 @@ namespace Presentation.Bislerium.Controllers
         }
 
         [HttpPut("UpdateCommentUpVote/{commentId}")]
-        public async Task<IActionResult> UpdateCommentUpVote(Guid commentId)
+        public async Task<IActionResult> UpdateCommentUpVote(Guid commentId,string userId)
         {
             try
             {
-                var updateComment = await _commentService.UpdateCommentUpVote(commentId);
+                var updateComment = await _commentService.UpdateCommentUpVote(commentId,userId);
                 return Ok(updateComment);
             }
             catch (KeyNotFoundException)
@@ -93,11 +93,11 @@ namespace Presentation.Bislerium.Controllers
         }
 
         [HttpPut("UpdateCommentDownVote/{commentId}")]
-        public async Task<IActionResult> UpdateCommentDownVote(Guid commentId)
+        public async Task<IActionResult> UpdateCommentDownVote(Guid commentId, string userId)
         {
             try
             {
-                var updateComment = await _commentService.UpdateCommentDownVote(commentId);
+                var updateComment = await _commentService.UpdateCommentDownVote(commentId, userId);
                 return Ok(updateComment);
             }
             catch (KeyNotFoundException)

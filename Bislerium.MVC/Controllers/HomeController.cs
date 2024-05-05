@@ -100,8 +100,10 @@ namespace Bislerium.MVC.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> UpdateBlogUpVote(Guid blogId, string userId)
+        public async Task<IActionResult> UpdateBlogUpVote(Guid blogId)
         {
+            var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
             try
             {
                 var requestUrl = $"https://localhost:7241/UpdateBlogUpVote/{blogId}?userId={userId}";
@@ -130,8 +132,11 @@ namespace Bislerium.MVC.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> UpdateBlogDownVote(Guid blogId, string userId)
+        public async Task<IActionResult> UpdateBlogDownVote(Guid blogId)
         {
+            var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
             try
             {
                 //var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateBlogDownVote/{blogId}", null);
@@ -204,22 +209,28 @@ namespace Bislerium.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateCommentUpVote(Guid commentId)
         {
+            var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
             var comment = await _db.Comments.FindAsync(commentId);
             var blog = await _db.Blogs.FindAsync(comment.BlogId);
             var blogId = blog.Id;
 
             try
             {
-                var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateCommentUpVote/{commentId}", null);
+                //var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateCommentUpVote/{commentId}", null);
+
+                var requestUrl = $"https://localhost:7241/UpdateCommentUpVote/{commentId}?userId={userId}";
+                var response = await _httpClient.PutAsync(requestUrl, null);
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var popularityResponse = await _httpClient.PutAsync($"https://localhost:7241/CalculateBlogPopularity/{blogId}", null);
                     return RedirectToAction("BlogDetail", new { blogId });
                 }
                 else
                 {
-                    // Handle unsuccessful response
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Error","Home");
                 }
             }
             catch (Exception ex)
@@ -231,16 +242,23 @@ namespace Bislerium.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateCommentDownVote(Guid commentId)
         {
+            var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
             var comment = await _db.Comments.FindAsync(commentId);
             var blog = await _db.Blogs.FindAsync(comment.BlogId);
             var blogId = blog.Id;
 
             try
             {
-                var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateCommentDownVote/{commentId}", null);
+                //var response = await _httpClient.PutAsync($"https://localhost:7241/UpdateCommentDownVote/{commentId}", null);
+
+                var requestUrl = $"https://localhost:7241/UpdateCommentDownVote/{commentId}?userId={userId}";
+                var response = await _httpClient.PutAsync(requestUrl, null);
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var popularityResponse = await _httpClient.PutAsync($"https://localhost:7241/CalculateBlogPopularity/{blogId}", null);
                     return RedirectToAction("BlogDetail", new { blogId });
                 }
                 else

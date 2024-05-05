@@ -257,38 +257,3 @@ namespace Infrastructure.Bislerium
     }
 }
 
-
-//public async Task<Blog> UpdateBlogUpVote(Guid blogId)
-//{
-//    var blog = await _db.Blogs.FindAsync(blogId);
-
-//    if (blog == null)
-//    {
-//        throw new KeyNotFoundException("Blog not found");
-//    }
-
-//    blog.UpVote++;
-
-//    _db.Update(blog);
-//    await _db.SaveChangesAsync();
-
-//    return blog;
-//}
-
-
-//public async Task<Blog> UpdateBlogDownVote(Guid blogId)
-//{
-//    var blog = await _db.Blogs.FindAsync(blogId);
-
-//    if (blog == null)
-//    {
-//        throw new KeyNotFoundException("Blog not found");
-//    }
-
-//    blog.DownVote++;
-
-//    _db.Update(blog);
-//    await _db.SaveChangesAsync();
-
-//    return blog;
-//}
