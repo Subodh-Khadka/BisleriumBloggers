@@ -28,8 +28,8 @@ namespace MVC.Frontend.Controllers
             var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
             {
-                
-                return Unauthorized(); 
+
+                return Unauthorized();
             }
 
             var userId = userIdClaim.Value;
@@ -61,7 +61,7 @@ namespace MVC.Frontend.Controllers
             if (image != null && image.Length > 3 * 1024 * 1024)
             {
                 ModelState.AddModelError("Image", "The image size must be less than or equal to 3 MB.");
-                return View(newBlog); 
+                return View(newBlog);
             }
 
             var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
@@ -89,7 +89,7 @@ namespace MVC.Frontend.Controllers
                 {
                     var imageContent = new StreamContent(image.OpenReadStream());
                     imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(image.ContentType);
-                    formData.Add(imageContent, "image", image.FileName); 
+                    formData.Add(imageContent, "image", image.FileName);
                 }
 
                 using (var client = new HttpClient())
@@ -97,7 +97,6 @@ namespace MVC.Frontend.Controllers
                     var response = await client.PostAsync("https://localhost:7241/AddBlog", formData);
 
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Response Content: {responseContent}");
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -113,8 +112,7 @@ namespace MVC.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception: {ex.Message}");
-                
+                Console.WriteLine($"{ex}");
                 return View(newBlog);
             }
         }
@@ -133,7 +131,7 @@ namespace MVC.Frontend.Controllers
             }
             else
             {
-                return View("Error","Home");
+                return View("Error", "Home");
             }
         }
 
@@ -178,6 +176,35 @@ namespace MVC.Frontend.Controllers
 
                     if (response.IsSuccessStatusCode)
                     {
+                        // Populate data for UpdateHistory
+                        var historyData = new UpdateHistory
+                        {
+                            Id = Guid.NewGuid(),
+                            EntityId = blogId,
+                            EntityType = "Blog",
+                            Action = "Update",
+                            UpdatedBy = userId,
+                            UpdatedDate = DateTime.Now,
+                            OldVContent = "", // Add logic to get old content if needed
+                            NewContent = JsonConvert.SerializeObject(updatedBlog)
+                        };
+
+                        // Convert to JSON
+                        var jsonContent = new StringContent(JsonConvert.SerializeObject(historyData), Encoding.UTF8, "application/json");
+
+                        // Make POST request to add history
+                        var historyResponse = await client.PostAsync("https://localhost:7241/AddHistory", jsonContent);
+
+                        if (historyResponse.IsSuccessStatusCode)
+                        {
+                            return RedirectToAction("Index", "Home");
+                        }
+                        else
+                        {
+                            var errorResponse = await historyResponse.Content.ReadAsStringAsync();
+                            ModelState.AddModelError(string.Empty, errorResponse);
+                            return View(updatedBlog);
+                        }
                         return RedirectToAction("Index", "Home");
                     }
                     else
@@ -190,7 +217,7 @@ namespace MVC.Frontend.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception: {ex.Message}");
+                Console.WriteLine(ex.Message);
                 return View(updatedBlog);
             }
         }

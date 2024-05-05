@@ -24,5 +24,6 @@ namespace Infrastructure.Bislerium.Data
         public DbSet<DownVote> DownVotes { get; set; }
         public DbSet<CommentUpVote> CommentUpVotes { get; set; }
         public DbSet<CommentDownVote> CommentDownVotes { get; set; }
+        public DbSet<UpdateHistory> UpdateHistories { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace Infrastructure.Bislerium
     public class ReactionService : IReactionService
     {
         private ApplicationDbContext _db;
-
+            
         public ReactionService(ApplicationDbContext db) 
         {
             _db = db;

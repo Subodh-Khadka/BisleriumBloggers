@@ -62,8 +62,6 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
-
-
 builder.Services.AddScoped<IBlogService, BlogService>();
 
 builder.Services.AddControllers();
@@ -78,6 +76,8 @@ builder.Services.AddHttpContextAccessor();
 //added
 builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IHistoryService, HistoryService>();
+
 builder.Services.AddScoped<CascadingAuthenticationState, CascadingAuthenticationState>();
 
 
