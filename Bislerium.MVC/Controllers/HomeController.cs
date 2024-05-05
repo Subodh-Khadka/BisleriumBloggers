@@ -110,6 +110,11 @@ namespace Bislerium.MVC.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var popularityResponse = await _httpClient.PutAsync($"https://localhost:7241/CalculateBlogPopularity/{blogId}", null);
+                    if (!popularityResponse.IsSuccessStatusCode)
+                    {
+                        return RedirectToAction("Index");
+                    }
                     return RedirectToAction("BlogDetail", new { blogId });
                 }
                 else
@@ -135,6 +140,7 @@ namespace Bislerium.MVC.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var popularityResponse = await _httpClient.PutAsync($"https://localhost:7241/CalculateBlogPopularity/{blogId}", null);
                     return RedirectToAction("BlogDetail", new { blogId });
                 }
                 else
@@ -153,12 +159,16 @@ namespace Bislerium.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> AddComment(Guid blogId, string content)
         {
+              var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
             try
             {
                 var comment = new Comment
                 {
                     BlogId = blogId,
-                    Content = content
+                    Content = content,
+                    UserId = userId,
                 };
 
                 var json = JsonConvert.SerializeObject(comment);
@@ -174,13 +184,11 @@ namespace Bislerium.MVC.Controllers
                 }
                 else
                 {
-                    // Handle unsuccessful response
                     return RedirectToAction("Index");
                 }
             }
             catch (Exception ex)
             {
-                // Handle any exceptions that occur during the request
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }

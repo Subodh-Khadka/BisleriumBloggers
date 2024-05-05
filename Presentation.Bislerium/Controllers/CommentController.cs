@@ -21,13 +21,13 @@ namespace Presentation.Bislerium.Controllers
 
         [HttpPost("AddComment")]
         [Consumes("application/json")]
-        public async Task<IActionResult> AddComment([FromBody] Comment comment)
+        public async Task<IActionResult> AddComment([FromBody] Comment comment, string userId)
         {
 
             comment.Id = Guid.NewGuid();
             comment.CreatedDate = DateTime.Now;
             comment.UpdateDate = DateTime.Now;
-            comment.UserId = "cd1a37a7-2d0b-4748-be72-a254fbc05695";
+            //comment.UserId = userId;
             comment.DownVote = 0;
             comment.UpVote = 0;
             comment.Popularity = 0;

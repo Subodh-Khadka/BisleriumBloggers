@@ -121,7 +121,7 @@ namespace Presentation.Bislerium.Controllers
         }
 
 
-        [HttpGet("CalculateBlogPopularity/{blogId}")]
+        [HttpPut("CalculateBlogPopularity/{blogId}")]
         public async Task<IActionResult> CalculateBlogPopularity(Guid blogId)
         {
             try
