@@ -1,116 +1,121 @@
-﻿    using Domain.Bislerium;
-    using Domain.Bislerium.ViewModels;
+﻿using Domain.Bislerium;
+using Domain.Bislerium.ViewModels;
 using Infrastructure.Bislerium.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-    using Microsoft.IdentityModel.Tokens;
-    using System.IdentityModel.Tokens.Jwt;
-    using System.Security.Claims;
-    using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
-    public class AccountController : Controller
-    {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IConfiguration _configuration;
-        private readonly SignInManager<ApplicationUser> _signInManager;
+public class AccountController : Controller
+{
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly IConfiguration _configuration;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ApplicationDbContext _db;
     public record LoginResponse(bool Flag, string Token, string Message);
-        public record UserSession(string? Id, string? Name, string? Email, string? Role);
-        public AccountController(UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager, IConfiguration configuration,
-        ApplicationDbContext db,
-        SignInManager<ApplicationUser> signInManager)
-        {
+    public record UserSession(string? Id, string? Name, string? Email, string? Role);
+    public AccountController(UserManager<ApplicationUser> userManager,
+    RoleManager<IdentityRole> roleManager, IConfiguration configuration,
+    ApplicationDbContext db,
+    SignInManager<ApplicationUser> signInManager)
+    {
 
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _configuration = configuration;
-            _signInManager = signInManager;
-            _db = db;
+        _userManager = userManager;
+        _roleManager = roleManager;
+        _configuration = configuration;
+        _signInManager = signInManager;
+        _db = db;
+    }
+
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
         }
 
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
+        var user = new ApplicationUser
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            FullName = model.FullName,
+            UserName = model.Email,
+            Email = model.Email
+        };
 
-            var user = new ApplicationUser
-            {
-                FullName = model.FullName,
-                UserName = model.Email,
-                Email = model.Email
-            };
+        // Check if the specified role exists
+        var roleExists = await _roleManager.RoleExistsAsync(model.Role);
+        if (!roleExists)
+        {
+            // Assign the specified role to the user
+            await _userManager.AddToRoleAsync(user, "Blogger");
 
-            // Check if the specified role exists
-            var roleExists = await _roleManager.RoleExistsAsync(model.Role);
-            if (!roleExists)
-            {
-                // If the role doesn't exist, return error
-                return BadRequest("Invalid role specified.");
-            }
+            return Ok("User registered successfully.");
 
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
-            {
-                // Assign the specified role to the user
-                await _userManager.AddToRoleAsync(user, model.Role);
-
-                return Ok("User registered successfully.");
-            }
-
-            return BadRequest(result.Errors);
+            //// If the role doesn't exist, return error
+            //return BadRequest("Invalid role specified.");
         }
 
-        [HttpPost("Login")]
-        public async Task<LoginResponse> Login([FromBody] LoginVm loginUser)
+        var result = await _userManager.CreateAsync(user, model.Password);
+        if (result.Succeeded)
         {
+            // Assign the specified role to the user
+            await _userManager.AddToRoleAsync(user, model.Role);
 
-            var result = await _signInManager.PasswordSignInAsync(loginUser.Email,
-            loginUser.Password, false, lockoutOnFailure: false);
-            if (result.Succeeded)
-            {
-                var getUser = await _userManager.FindByEmailAsync(loginUser.Email);
-                var getUserRole = await _userManager.GetRolesAsync(getUser);
-                var userSession = new UserSession(getUser.Id, getUser.UserName,
-                getUser.Email, getUserRole.First());
-                string token = GenerateToken(userSession);
-                return new LoginResponse(true, token!, "Login completed");
-            }
-            else
-            {
-                return new LoginResponse(false, null!, "Login not completed");
-            }
+            return Ok("User registered successfully.");
         }
 
-        private string GenerateToken(UserSession user)
+        return BadRequest(result.Errors);
+    }
+
+    [HttpPost("Login")]
+    public async Task<LoginResponse> Login([FromBody] LoginVm loginUser)
+    {
+
+        var result = await _signInManager.PasswordSignInAsync(loginUser.Email,
+        loginUser.Password, false, lockoutOnFailure: false);
+        if (result.Succeeded)
         {
-            var securityKey = new
-            SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey,
-            SecurityAlgorithms.HmacSha256);
-            var userClaims = new[]
-            {
+            var getUser = await _userManager.FindByEmailAsync(loginUser.Email);
+            var getUserRole = await _userManager.GetRolesAsync(getUser);
+            var userSession = new UserSession(getUser.Id, getUser.UserName,
+            getUser.Email, getUserRole.First());
+            string token = GenerateToken(userSession);
+            return new LoginResponse(true, token!, "Login completed");
+        }
+        else
+        {
+            return new LoginResponse(false, null!, "Login not completed");
+        }
+    }
+
+    private string GenerateToken(UserSession user)
+    {
+        var securityKey = new
+        SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        var credentials = new SigningCredentials(securityKey,
+        SecurityAlgorithms.HmacSha256);
+        var userClaims = new[]
+        {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role)
                 };
-            var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
-            claims: userClaims,
-            expires: DateTime.Now.AddDays(1),
-            signingCredentials: credentials
+        var token = new JwtSecurityToken(
+        issuer: _configuration["Jwt:Issuer"],
+        audience: _configuration["Jwt:Audience"],
+        claims: userClaims,
+        expires: DateTime.Now.AddDays(1),
+        signingCredentials: credentials
 
-            );
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+        );
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
 
     [HttpGet("UserProfile/{userId}")]
     //[Authorize]

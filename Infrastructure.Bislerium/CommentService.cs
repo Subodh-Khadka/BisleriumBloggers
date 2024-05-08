@@ -2,6 +2,7 @@
 using Domain.Bislerium;
 using Domain.Bislerium.ViewModels;
 using Infrastructure.Bislerium.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -65,6 +66,7 @@ namespace Infrastructure.Bislerium
 
         }
 
+        
         public async Task<IEnumerable<Comment>> GetAllComments()
         {
             var allComment = await _db.Comments.ToListAsync();

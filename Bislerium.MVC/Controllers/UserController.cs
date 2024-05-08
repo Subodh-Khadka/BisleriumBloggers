@@ -107,6 +107,10 @@ namespace Bislerium.MVC.Controllers
                     {
                         return RedirectToAction("Index", "Home");
                     }
+                    else if (role == "Admin")
+                    {
+                        return RedirectToAction("Index", "Admin");
+                    }
                     else
                     {
                         return RedirectToAction("Error", "Home");

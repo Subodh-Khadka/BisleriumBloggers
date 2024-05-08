@@ -3,6 +3,7 @@ using Domain.Bislerium;
 using Domain.Bislerium.ViewModels;
 using Infrastructure.Bislerium;
 using Infrastructure.Bislerium.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Bislerium.Controllers
@@ -34,6 +35,7 @@ namespace Presentation.Bislerium.Controllers
         }
 
 
+        [Authorize]
         [HttpGet("GetAllComments")]
         public async Task<IActionResult> GetAllComments()
         {
