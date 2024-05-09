@@ -9,7 +9,9 @@ namespace Application.Bislerium
 {
     public interface IReactionService
     {
-        
-        
+        Task<int> GetUpvoteCountForBlog(Guid blogId);
+        Task<int> GetDownvoteCountForBlog(Guid blogId);
+        Task<int> GetUpvoteCountForComment(Guid commentId);
+        Task<int> GetDownvoteCountForComment(Guid commentId);
     }
 }

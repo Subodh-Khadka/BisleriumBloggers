@@ -201,6 +201,48 @@ namespace Bislerium.MVC.Controllers
             }
         }
         
+        public async Task<IActionResult> ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest("User ID not found.");
+            }
+
+            try
+            {
+                var json = JsonConvert.SerializeObject(model);
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PutAsync($"https://localhost:7241/changePassword/{Uri.EscapeDataString(userId)}", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] = "Password has been changed successfully.";
+                    return RedirectToAction("ChangePassword");
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = "Change Password failed";
+                    return View(model);
+                }
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
+        }
+
+
+
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

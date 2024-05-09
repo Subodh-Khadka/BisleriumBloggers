@@ -68,8 +68,8 @@ namespace Bislerium.MVC.Controllers
 
         public async Task<IActionResult> BlogDetail(Guid blogId)
         {
-            var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = userIdClaim.Value;
+            //var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+            //var userId = userIdClaim.Value;
             try
             {
                 var blogResponse = await _httpClient.GetFromJsonAsync<Blog>($"https://localhost:7241/GetBlogById/{blogId}");
@@ -81,7 +81,6 @@ namespace Bislerium.MVC.Controllers
                     {
                         Blog = blogResponse,
                         Comments = commentsResponse,
-                        UserId = userId,
                     };
 
                     return View(viewModel);

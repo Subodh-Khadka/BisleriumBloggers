@@ -18,19 +18,28 @@ namespace Infrastructure.Bislerium
             _db = db;
         }
 
-         public async Task<Reaction> AddReaction(Reaction reaction)
+        public async Task<int> GetUpvoteCountForBlog(Guid blogId)
         {
-            if (reaction == null) throw new ArgumentNullException();
-
-            var result = await _db.Reactions.AddAsync(reaction);
-            await _db.SaveChangesAsync();
-            return result.Entity;
+            var count = await _db.Uovotes.CountAsync(upvote => upvote.BlogId == blogId);
+            return count;
         }
 
-        public async Task<IEnumerable<Reaction>> GetAllReactions()
+        public async Task<int> GetDownvoteCountForBlog(Guid blogId)
         {
-            var result = await _db.Reactions.ToListAsync();
-            return result;
+            var count = await _db.DownVotes.CountAsync(downvote => downvote.BlogId == blogId);
+            return count;
+        }
+
+        public async Task<int> GetUpvoteCountForComment(Guid commentId)
+        {
+            var count = await _db.CommentUpVotes.CountAsync(upvote => upvote.CommentId == commentId);
+            return count;
+        }
+
+        public async Task<int> GetDownvoteCountForComment(Guid commentId)
+        {
+            var count = await _db.CommentDownVotes.CountAsync(downvote => downvote.CommentId == commentId);
+            return count;
         }
     }
 }

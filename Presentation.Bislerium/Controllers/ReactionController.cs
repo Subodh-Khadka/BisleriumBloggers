@@ -15,13 +15,6 @@ namespace Presentation.Bislerium.Controllers
             _reactionService = reactionService;
         }
 
-        [HttpPost("AddReaction")]
-        public async Task<IActionResult> AddReaction([FromBody] Reaction reaction)
-        {
-            if (reaction == null) throw new ArgumentNullException();
-
-            var newReaction = await _reactionService.AddReaction(reaction);
-            return Ok(newReaction);
-        }
+       
     }
 }

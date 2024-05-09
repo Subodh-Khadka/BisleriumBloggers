@@ -4,9 +4,9 @@
     Layout = "_AdminLayout";
 }
 
-<div class="container mt-5">
+<div class="container mt-2">
     <h1>Admin Dashboard</h1>
-
+    <hr/>
     <div class="dropdown text-end mb-1 mt-0">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
             Filter by Month
@@ -21,26 +21,34 @@
     </div>
 
     <div class="row mt-4">
-        <div class="col-md-6">
-            <h3>All-Time Data</h3>
-            <ul class="list-group">
-                <li class="list-group-item">Total Blog Posts: @Model.TotalBlogPosts</li>
-                <li class="list-group-item">Total Upvotes: @Model.TotalUpvotes</li>
-                <li class="list-group-item">Total Downvotes: @Model.TotalDownvotes</li>
-                <li class="list-group-item">Total Comments: @Model.TotalComments</li>
-            </ul>
-        </div>
-
-        @if (Model.MonthTotalBlogPosts >= 0)
+        @if (ViewBag.IsAllTime)
         {
             <div class="col-md-6">
-                <h3>Month Data</h3>
-                <ul class="list-group">
-                    <li class="list-group-item">Total Blog Posts: @Model.MonthTotalBlogPosts</li>
-                    <li class="list-group-item">Total Upvotes: @Model.MonthTotalUpvotes</li>
-                    <li class="list-group-item">Total Downvotes: @Model.MonthTotalDownvotes</li>
-                    <li class="list-group-item">Total Comments: @Model.MonthTotalComments</li>
-                </ul>
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">All Time Data</h3>
+                        <p>Total Blog Posts: @Model.TotalBlogPosts</p>
+                        <p>Total Upvotes: @Model.TotalUpvotes</p>
+                        <p>Total Downvotes: @Model.TotalDownvotes</p>
+                        <p>Total Comments: @Model.TotalComments</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+
+        @if (!ViewBag.IsAllTime)
+        {
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">Month Data</h3>
+                        <p>Total Blog Posts: @Model.MonthTotalBlogPosts</p>
+                        <p>Total Upvotes: @Model.MonthTotalUpvotes</p>
+                        <p>Total Downvotes: @Model.MonthTotalDownvotes</p>
+                        <p>Total Comments: @Model.MonthTotalComments</p>
+                    </div>
+                </div>
             </div>
         }
     </div>

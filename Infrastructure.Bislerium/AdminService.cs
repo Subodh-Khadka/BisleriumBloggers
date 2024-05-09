@@ -52,30 +52,32 @@ namespace Infrastructure.Bislerium
             {
                 var monthlyBlogs = await _blogService.GetBlogsByMonth(month);
                 var monthlyBlogPosts = monthlyBlogs.Count();
-                var monthlyUpvotes = monthlyBlogs.Sum(blog => blog.UpVote);
-                var monthlyDownvotes = monthlyBlogs.Sum(blog => blog.DownVote);
+                var monthlyBlogUpvotes = monthlyBlogs.Sum(blog => blog.UpVote);
+                var monthlyBlogDownvotes = monthlyBlogs.Sum(blog => blog.DownVote);
 
                 var monthlyComments = await _commentService.GetCommentsByMonth(month);
                 var monthlyCommentCount = monthlyComments.Count();
+                var monthlyCommentUpvotes = monthlyComments.Sum(comment => comment.UpVote);
+                var monthlyCommentDownvotes = monthlyComments.Sum(comment => comment.DownVote);
 
-                // Create the dashboard data object for the specified month
+                var totalMonthlyUpvotes = monthlyBlogUpvotes + monthlyCommentUpvotes;
+                var totalMonthlyDownvotes = monthlyBlogDownvotes + monthlyCommentDownvotes;
                 var dashboardData = new AdminDashboardDetail
                 {
                     MonthTotalBlogPosts = monthlyBlogPosts,
-                    MonthTotalComments = monthlyCommentCount
+                    MonthTotalComments = monthlyCommentCount,
+                    MonthTotalUpvotes = (int)totalMonthlyUpvotes,
+                    MonthTotalDownvotes = (int)totalMonthlyDownvotes,
                 };
-
-                //    MonthTotalUpvotes = monthlyUpvotes,
-                //    MonthTotalDownvotes = monthlyDownvotes,
 
                 return dashboardData;
             }
             else
             {
-                // If month is not provided, return all-time data
                 return await GetAllTimeData();
             }
         }
+
     }
 }
 

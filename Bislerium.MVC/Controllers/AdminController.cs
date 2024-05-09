@@ -29,30 +29,28 @@ namespace Bislerium.MVC.Controllers
             {
                 string url = "https://localhost:7241/dashboard";
 
-                // If month is provided, append it to the URL
                 if (!string.IsNullOrEmpty(month))
                 {
                     url += $"?month={month}";
                 }
 
-                // Fetch dashboard data from the API
                 var response = await _httpClient.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var dashboardData = JsonConvert.DeserializeObject<AdminDashboardDetail>(content);
+
+                    ViewBag.IsAllTime = string.IsNullOrEmpty(month);
                     return View(dashboardData);
                 }
                 else
                 {
-                    // Handle unsuccessful response
                     return View("Error");
                 }
             }
             catch (Exception ex)
             {
-                // Handle exception
                 return View("Error");
             }
         }
@@ -65,33 +63,3 @@ namespace Bislerium.MVC.Controllers
     }
 }
 
-
-
-
-
-
-//public async Task<IActionResult> Index()
-//{
-//    try
-//    {
-//        // Fetch all-time dashboard data from the API
-//        var response = await _httpClient.GetAsync($"https://localhost:7241/dashboard");
-
-//        if (response.IsSuccessStatusCode)
-//        {
-//            var content = await response.Content.ReadAsStringAsync();
-//            var allTimeData = JsonConvert.DeserializeObject<AdminDashboardDetail>(content);
-//            return View(allTimeData);
-//        }
-//        else
-//        {
-//            // Handle unsuccessful response
-//            return View("Error");
-//        }
-//    }
-//    catch (Exception ex)
-//    {
-//        // Handle exception
-//        return View("Error");
-//    }
-//}

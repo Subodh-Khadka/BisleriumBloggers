@@ -26,6 +26,7 @@ namespace Presentation.Bislerium.Controllers
                         return NotFound("Dashboard data not found.");
                     }
 
+                    
                     return Ok(allTimeData);
                 }
                 else
@@ -37,6 +38,7 @@ namespace Presentation.Bislerium.Controllers
                         return NotFound($"Dashboard data for {month} not found.");
                     }
 
+                    ViewBag.IsAllTime = false;
                     return Ok(monthlyData);
                 }
             }
@@ -45,49 +47,6 @@ namespace Presentation.Bislerium.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
-
-
-        //[HttpGet("dashboard")]
-        //public async Task<IActionResult> GetAdminDashboardData()
-        //{
-        //    try
-        //    {
-        //        var allTimeData = await _adminService.GetAllTimeData();
-
-        //        if (allTimeData == null)
-        //        {
-        //            return NotFound("Dashboard data not found.");
-        //        }
-
-        //        return Ok(allTimeData);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"An error occurred: {ex.Message}");
-        //    }
-        //}
-
-
-        //[HttpGet("monthlydata")]
-        //public async Task<IActionResult> GetMonthlyData(string month)
-        //{
-        //    try
-        //    {
-        //        // Call the service method to get monthly dashboard data
-        //        var monthlyData = await _adminService.GetMonthlyDashboardData(month);
-
-        //        if (monthlyData == null)
-        //        {
-        //            return NotFound("Monthly data not found.");
-        //        }
-
-        //        return Ok(monthlyData);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"An error occurred: {ex.Message}");
-        //    }
-        //}
     }
 
 }

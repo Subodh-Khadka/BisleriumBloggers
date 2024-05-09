@@ -22,6 +22,5 @@ namespace Domain.Bislerium.ViewModels
         [ForeignKey("Blog")]
         public Guid BlogId { get; set; }
         public Blog? Blog { get; set; }
-
     }
 }

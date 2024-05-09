@@ -4,6 +4,7 @@ using Infrastructure.Bislerium.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -191,6 +192,33 @@ public class AccountController : Controller
             return StatusCode(500, $"An error occurred while updating user: {ex.Message}");
         }
     }
+
+    [HttpGet("GetUsers")]
+    public async Task<IActionResult> GetUsers()
+    {
+        var allUsers = await _db.ApplicationUsers.ToListAsync();
+        return Ok(allUsers);
+    }
+
+
+    [HttpPut("changePassword/{userId}")]
+    public async Task<IActionResult> ChangePassword(string userId, [FromBody] ChangePasswordViewModel model)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var result = await _userManager.ChangePasswordAsync(user, model.PreviousPassword, model.NewPassword);
+        if (result.Succeeded)
+        {
+            return Ok("Password has been changed!.");
+        }
+
+        return BadRequest(result.Errors);
+    }
+
 }
 
 
