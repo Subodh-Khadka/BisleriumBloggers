@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Controllers\favicon.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.4" />
@@ -29,6 +25,10 @@
   <ItemGroup>
     <Folder Include="wwwroot\Images\BlogImages\" />
     <Folder Include="wwwroot\Images\ProfilePictures\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\favicon.png" />
   </ItemGroup>
 
 </Project>

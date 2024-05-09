@@ -254,6 +254,24 @@ namespace Infrastructure.Bislerium
 
             return popularity;
         }
+
+        //for admin dashboard
+        public async Task<IEnumerable<Blog>> GetBlogsByMonth(string month)
+        {
+            // Parse the month string to an integer
+            if (!int.TryParse(month, out int monthNumber))
+            {
+                throw new ArgumentException("Invalid month format.");
+            }
+
+            // Filter blogs based on the month
+            var blogs = await _db.Blogs
+                .Where(b => b.CreatedDateTime.Month == monthNumber)
+                .ToListAsync();
+
+            return blogs;
+        }
+
     }
 }
 

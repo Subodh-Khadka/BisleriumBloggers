@@ -1,6 +1,47 @@
-﻿@{
+﻿@model Domain.Bislerium.ViewModels.AdminDashboardDetail
+
+@{
     Layout = "_AdminLayout";
 }
 
+<div class="container mt-5">
+    <h1>Admin Dashboard</h1>
 
-<p>This is admin Page</p>
+    <div class="dropdown text-end mb-1 mt-0">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            Filter by Month
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <li><a asp-action="Index" asp-route-month="" class="dropdown-item">All-Time</a></li>
+            @for (int month = 1; month <= 12; month++)
+            {
+                <li><a asp-action="Index" asp-route-month="@month" class="dropdown-item">Month @month</a></li>
+            }
+        </ul>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>All-Time Data</h3>
+            <ul class="list-group">
+                <li class="list-group-item">Total Blog Posts: @Model.TotalBlogPosts</li>
+                <li class="list-group-item">Total Upvotes: @Model.TotalUpvotes</li>
+                <li class="list-group-item">Total Downvotes: @Model.TotalDownvotes</li>
+                <li class="list-group-item">Total Comments: @Model.TotalComments</li>
+            </ul>
+        </div>
+
+        @if (Model.MonthTotalBlogPosts >= 0)
+        {
+            <div class="col-md-6">
+                <h3>Month Data</h3>
+                <ul class="list-group">
+                    <li class="list-group-item">Total Blog Posts: @Model.MonthTotalBlogPosts</li>
+                    <li class="list-group-item">Total Upvotes: @Model.MonthTotalUpvotes</li>
+                    <li class="list-group-item">Total Downvotes: @Model.MonthTotalDownvotes</li>
+                    <li class="list-group-item">Total Comments: @Model.MonthTotalComments</li>
+                </ul>
+            </div>
+        }
+    </div>
+</div>

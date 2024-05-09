@@ -17,5 +17,7 @@ namespace Application.Bislerium
         Task<IEnumerable<Comment>> GetCommentsByBlogId(Guid BlogId);
         Task<Comment> UpdateCommentUpVote(Guid id, string userId);
         Task<Comment> UpdateCommentDownVote(Guid id, string userId);
+
+        Task<IEnumerable<Comment>> GetCommentsByMonth(string month);
     }
 }

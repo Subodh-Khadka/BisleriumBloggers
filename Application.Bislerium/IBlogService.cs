@@ -21,6 +21,8 @@ namespace Application.Bislerium
         Task<IEnumerable<Blog>> GetSortedBlogs(string sortBy);
         Task<double> CalculateBlogPopularity(Guid blogId);
 
+        Task<IEnumerable<Blog>> GetBlogsByMonth(string month);
+
 
     }
 }

@@ -189,6 +189,23 @@ namespace Infrastructure.Bislerium
 
             return comment;
         }
+
+        public async Task<IEnumerable<Comment>> GetCommentsByMonth(string month)
+        {
+            // Parse the month string to an integer
+            if (!int.TryParse(month, out int monthNumber))
+            {
+                throw new ArgumentException("Invalid month format.");
+            }
+
+            // Filter comments based on the month
+            var comments = await _db.Comments
+                .Where(c => c.CreatedDate.Month == monthNumber)
+                .ToListAsync();
+
+            return comments;
+        }
+
     }
 }
 
