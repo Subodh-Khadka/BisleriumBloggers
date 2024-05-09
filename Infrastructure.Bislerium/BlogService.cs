@@ -287,11 +287,11 @@ namespace Infrastructure.Bislerium
                 .SelectMany(g => _db.Blogs.Where(b => b.UserId == g.UserId))
                 .Include(u => u.User)
                 .ToListAsync();
+ 
+            top10Bloggers = top10Bloggers.GroupBy(b => b.UserId).Select(g => g.First()).ToList();
 
             return top10Bloggers;
         }
-
-
 
         public async Task<IEnumerable<Blog>> GetTop10BlogPosts(string month)
         {
@@ -303,13 +303,23 @@ namespace Infrastructure.Bislerium
         public async Task<IEnumerable<Blog>> GetTop10Bloggers(string month)
         {
             var blogs = await GetBlogsByMonth(month);
-            var top10Bloggers = blogs.GroupBy(b => b.UserId)
-                                    .OrderByDescending(g => g.Sum(b => b.Popularity))
-                                    .Take(10)
-                                    .SelectMany(g => g)
-                                    .ToList();
+            var top10Bloggers = blogs
+                .GroupBy(b => b.UserId)
+                .OrderByDescending(g => g.Sum(b => b.Popularity))
+                .Take(10)
+                .SelectMany(g => g)
+                .ToList();
+
+            foreach (var blog in top10Bloggers)
+            {
+                _db.Entry(blog).Reference(b => b.User).Load();
+            }
+
+            top10Bloggers = top10Bloggers.GroupBy(b => b.UserId).Select(g => g.First()).ToList();
+
             return top10Bloggers;
         }
+
 
     }
 }

@@ -231,8 +231,6 @@ namespace MVC.Frontend.Controllers
                 }
                 else
                 {
-                    var errorResponse = await response.Content.ReadAsStringAsync();
-                    ModelState.AddModelError(string.Empty, errorResponse);
                     return View("Error");
                 }
             }
@@ -241,7 +239,6 @@ namespace MVC.Frontend.Controllers
                 Console.WriteLine($"{ex}");
                 return View("Error");
             }
-        }
-
+        }   
     }
 }

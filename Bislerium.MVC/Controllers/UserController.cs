@@ -96,7 +96,7 @@ namespace Bislerium.MVC.Controllers
                  new Claim(ClaimTypes.Name, name),
                  new Claim(ClaimTypes.Email, email),
                 new Claim(ClaimTypes.Role, role),
-    new Claim(ClaimTypes.Email, email),
+                new Claim(ClaimTypes.Email, email),
             };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

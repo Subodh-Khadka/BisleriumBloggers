@@ -2,10 +2,11 @@
 
 @{
     Layout = "_AdminLayout";
+    var monthNames = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.MonthNames;
 }
 
 <div class="container mt-2">
-    <h1>Admin Dashboard</h1>
+    <h4>Admin Dashboard</h4>
     <hr />
     <div class="dropdown text-end mb-1 mt-0">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -13,9 +14,9 @@
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
             <li><a asp-action="Index1" asp-route-month="" class="dropdown-item">All-Time</a></li>
-            @for (int month = 1; month <= 12; month++)
+            @for (int month = 0; month < 12; month++)
             {
-                <li><a asp-action="Index1" asp-route-month="@month" class="dropdown-item">Month @month</a></li>
+                <li><a asp-action="Index1" asp-route-month="@(month + 1)" class="dropdown-item">@monthNames[month]</a></li>
             }
         </ul>
     </div>
@@ -23,64 +24,110 @@
     <div class="row mt-4">
         @if (ViewBag.IsAllTime)
         {
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
                         <h3 class="card-title">All Time Top Bloggers</h3>
-                        <ul>
-                            @foreach (var blogger in Model.Top10Bloggers)
-                            {
-                                <li>@blogger.User.UserName</li>
-                            }
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h3 class="card-title">All Time Top Blog Posts</h3>
-                        <ul>
-                            @foreach (var post in Model.Top10BlogPosts)
-                            {
-                                <li>@post.Title</li>
-                            }
-                        </ul>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>User Name</th>
+                                        <th>Full Name</th>
+                                        <th>Bio</th>
+                                        <th>Profile Picture</th>
+                                        <th>Date of Birth</th>
+                                        <th>Address</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var blogger in Model.Top10Bloggers)
+                                    {
+                                        <tr>
+                                            <td>@blogger.User.UserName</td>
+                                            <td>@blogger.User.FullName</td>
+                                            <td>@blogger.User.Bio</td>
+                                            <td><img src="https://localhost:7241/@blogger.User.ProfilePictureUrl" alt="@blogger.Id" height="40px" width="40px" class="rounded-circle" /></td>
+                                            <td>@blogger.User.DateOfBirth</td>
+                                            <td>@blogger.User.Address</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         }
+
 
         @if (!ViewBag.IsAllTime)
         {
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
                         <h3 class="card-title">Top Bloggers for Month</h3>
-                        <ul>
-                            @foreach (var blogger in Model.Top10MonthlyBloggers)
-                            {
-                                <li>@blogger.User.UserName</li>
-                            }
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h3 class="card-title">Top Blog Posts for Month</h3>
-                        <ul>
-                            @foreach (var post in Model.Top10MonthlyBlogPosts)
-                            {
-                                <li>@post.Title</li>
-                            }
-                        </ul>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>User Name</th>
+                                        <th>Full Name</th>
+                                        <th>Bio</th>
+                                        <th>Profile Picture</th>
+                                        <th>Date of Birth</th>
+                                        <th>Address</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var blogger in Model.Top10MonthlyBloggers)
+                                    {
+                                        <tr>
+                                            <td>@blogger.User.UserName</td>
+                                            <td>@blogger.User.FullName</td>
+                                            <td>@blogger.User.Bio</td>
+                                            <td><img src="https://localhost:7241/@blogger.User.ProfilePictureUrl" alt="@blogger.Id" height="40px" width="40px" class="rounded-circle" /></td>
+                                            <td>@blogger.User.DateOfBirth</td>
+                                            <td>@blogger.User.Address</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         }
+
     </div>
 </div>
+
+@* 
+<div class="col-md-6">
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">All Time Top Blog Posts</h3>
+            <ul>
+                @foreach (var post in Model.Top10BlogPosts)
+                {
+                    <li>@post.Title</li>
+                }
+            </ul>
+        </div>
+    </div>
+</div> *@
+
+
+@* <div class="col-md-6">
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Top Blog Posts for Month</h3>
+            <ul>
+                @foreach (var post in Model.Top10MonthlyBlogPosts)
+                {
+                    <li>@post.Title</li>
+                }
+            </ul>
+        </div>
+    </div>
+</div> *@

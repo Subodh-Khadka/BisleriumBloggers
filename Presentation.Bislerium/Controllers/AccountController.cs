@@ -56,9 +56,6 @@ public class AccountController : Controller
             await _userManager.AddToRoleAsync(user, "Blogger");
 
             return Ok("User registered successfully.");
-
-            //// If the role doesn't exist, return error
-            //return BadRequest("Invalid role specified.");
         }
 
         var result = await _userManager.CreateAsync(user, model.Password);
@@ -119,7 +116,6 @@ public class AccountController : Controller
     }
 
     [HttpGet("UserProfile/{userId}")]
-    //[Authorize]
     public async Task<ActionResult<UserProfileVm>> UserProfile(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
@@ -129,7 +125,6 @@ public class AccountController : Controller
             return NotFound();
         }
 
-        // Create a user profile view model based on the user information
         var userProfile = new UserProfileVm
         {
             Id = user.Id,

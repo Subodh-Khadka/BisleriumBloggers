@@ -1,0 +1,117 @@
+﻿@model Domain.Bislerium.ViewModels.AdminDashboardDetail
+
+@{
+    Layout = "_AdminLayout";
+    var monthNames = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.MonthNames;
+}
+
+<div class="container mt-2">
+    <h4>Admin Dashboard</h4>
+    <hr />
+    <div class="dropdown text-end mb-1 mt-0">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            Filter by Month
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <li><a asp-action="Index2" asp-route-month="" class="dropdown-item">All-Time</a></li>
+            @for (int month = 0; month < 12; month++)
+            {
+                <li><a asp-action="Index2" asp-route-month="@(month + 1)" class="dropdown-item">@monthNames[month]</a></li>
+            }
+        </ul>
+    </div>
+
+    <div class="row mt-4">
+        @if (ViewBag.IsAllTime)
+        {
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">All Time Top Blog Posts</h3>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Description</th>
+                                        <th>Author</th>
+                                        <th>Created Date</th>
+                                        <th>Popularity</th>
+                                        <th>UpVote</th>
+                                        <th>DownVote</th>
+                                        <th>Comment Count</th>
+                                        <th>Image</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var post in Model.Top10BlogPosts)
+                                    {
+                                        <tr>
+                                            <td>@post.Title</td>
+                                            <td>@post.Description</td>
+                                            <td>@post.User.UserName</td>
+                                            <td>@post.CreatedDateTime.ToShortDateString()</td>
+                                            <td>@post.Popularity</td>
+                                            <td>@post.UpVote</td>
+                                            <td>@post.DownVote</td>
+                                            <td>@post.CommentCount</td>
+                                            <td><img src="https://localhost:7241/@post.Image" alt="Image" height="40px" width="40px" class="rounded-circle" /></td>
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+
+        @if (!ViewBag.IsAllTime)
+        {
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">Top Blog Posts for Month</h3>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Description</th>
+                                        <th>Author</th>
+                                        <th>Created Date</th>
+                                        <th>Popularity</th>
+                                        <th>UpVote</th>
+                                        <th>DownVote</th>
+                                        <th>Comment Count</th>
+                                        <th>Image</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var post in Model.Top10MonthlyBlogPosts)
+                                    {
+                                        <tr>
+                                            <td>@post.Title</td>
+                                            <td>@post.Description</td>
+                                            <td>@post.User.UserName</td>
+                                            <td>@post.CreatedDateTime.ToShortDateString()</td>
+                                            <td>@post.Popularity</td>
+                                            <td>@post.UpVote</td>
+                                            <td>@post.DownVote</td>
+                                            <td>@post.CommentCount</td>
+                                            <td><img src="https://localhost:7241/@post.Image" alt="Image" height="40px" width="40px" class="rounded-circle" /></td>
+                                          @*   <td><img src="https://localhost:7241/@blogger.User.ProfilePictureUrl" alt="@blogger.Id" height="40px" width="40px" class="rounded-circle" /></td> *@
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

@@ -98,36 +98,3 @@ namespace Infrastructure.Bislerium
     }
 }
 
-
-//public async Task<AdminDashboardDetail> GetMonthlyData(string month)
-//{
-//    if (!string.IsNullOrEmpty(month))
-//    {
-//        var monthlyBlogs = await _blogService.GetBlogsByMonth(month);
-//        var monthlyBlogPosts = monthlyBlogs.Count();
-//        var monthlyBlogUpvotes = monthlyBlogs.Sum(blog => blog.UpVote);
-//        var monthlyBlogDownvotes = monthlyBlogs.Sum(blog => blog.DownVote);
-
-//        var monthlyComments = await _commentService.GetCommentsByMonth(month);
-//        var monthlyCommentCount = monthlyComments.Count();
-//        var monthlyCommentUpvotes = monthlyComments.Sum(comment => comment.UpVote);
-//        var monthlyCommentDownvotes = monthlyComments.Sum(comment => comment.DownVote);
-
-//        var totalMonthlyUpvotes = monthlyBlogUpvotes + monthlyCommentUpvotes;
-//        var totalMonthlyDownvotes = monthlyBlogDownvotes + monthlyCommentDownvotes;
-//        var dashboardData = new AdminDashboardDetail
-//        {
-//            MonthTotalBlogPosts = monthlyBlogPosts,
-//            MonthTotalComments = monthlyCommentCount,
-//            MonthTotalUpvotes = (int)totalMonthlyUpvotes,
-//            MonthTotalDownvotes = (int)totalMonthlyDownvotes,
-//        };
-
-//        return dashboardData;
-//    }
-//    else
-//    {
-//        return await GetAllTimeData();
-//    }
-//}
-

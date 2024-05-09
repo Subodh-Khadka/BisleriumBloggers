@@ -2,11 +2,19 @@
 
 @{
     Layout = "_AdminLayout";
+    var monthNames = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.MonthNames;
 }
 
-<div class="container mt-2 d-flex  justify-content-center">
+
+<style>
+    .card-body p {
+        font-size: medium;
+    }
+</style>
+
+<div class="container mt-2">
     <div class="row mt-4">
-        <h1>Admin Dashboard</h1>
+        <h4>Admin Dashboard</h4>
         <hr />
         <div class="dropdown text-end mb-1 mt-0">
             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -14,42 +22,72 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                 <li><a asp-action="Index" asp-route-month="" class="dropdown-item">All-Time</a></li>
-                @for (int month = 1; month <= 12; month++)
+                @for (int month = 0; month < 12; month++)
                 {
-                    <li><a asp-action="Index" asp-route-month="@month" class="dropdown-item">Month @month</a></li>
+                    <li><a asp-action="Index" asp-route-month="@(month + 1)" class="dropdown-item">@monthNames[month]</a></li>
                 }
             </ul>
         </div>
 
-        @if (ViewBag.IsAllTime)
-        {
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h3 class="card-title">All Time Data</h3>
-                        <p>Total Blog Posts: @Model.TotalBlogPosts</p>
-                        <p>Total Upvotes: @Model.TotalUpvotes</p>
-                        <p>Total Downvotes: @Model.TotalDownvotes</p>
-                        <p>Total Comments: @Model.TotalComments</p>
+        <div class="d-flex flex-column justify-content-center align-items-center">
+            @if (ViewBag.IsAllTime)
+            {
+                <h3 class="card-title">All Time Data</h3>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Total Blog Posts: <strong>@Model.TotalBlogPosts</strong></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Total Upvotes: <strong>@Model.TotalUpvotes</strong></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Total Downvotes: <strong>@Model.TotalDownvotes</strong></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Total Comments: <strong>@Model.TotalComments</strong></p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
 
 
-        @if (!ViewBag.IsAllTime)
-        {
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h3 class="card-title">Month Data</h3>
-                        <p>Total Blog Posts: @Model.MonthTotalBlogPosts</p>
-                        <p>Total Upvotes: @Model.MonthTotalUpvotes</p>
-                        <p>Total Downvotes: @Model.MonthTotalDownvotes</p>
-                        <p>Total Comments: @Model.MonthTotalComments</p>
+        <div class="d-flex flex-column justify-content-center align-items-center">
+
+            @if (!ViewBag.IsAllTime)
+            {
+                <h3 class="card-title">Month Data</h3>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Total Blog Posts: <strong>@Model.MonthTotalBlogPosts</strong></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Total Upvotes: <strong>@Model.MonthTotalUpvotes</strong></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Total Downvotes: <strong>@Model.MonthTotalDownvotes</strong></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Total Comments: <strong>@Model.MonthTotalComments</strong></p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
+
+            }
+        </div>
     </div>
 </div>
