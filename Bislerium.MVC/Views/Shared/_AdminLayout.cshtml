@@ -103,7 +103,10 @@
                 <hr class="text-white" />
             </li>
             <li class="nav-item">
-                <a asp-action="Index" asp-controller="Admin" class="nav-link mt-1 mb-1">  Dashboard</a>
+                <a asp-action="Index" asp-controller="Admin" class="nav-link mt-1 mb-1">Dashboard</a>
+            </li> 
+            <li class="nav-item">
+                <a asp-action="Index1" asp-controller="Admin" class="nav-link mt-1 mb-1">Popular</a>
             </li>
             @if (User.Identity.IsAuthenticated & User.IsInRole("Admin"))
             {

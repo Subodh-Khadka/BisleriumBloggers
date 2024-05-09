@@ -258,18 +258,57 @@ namespace Infrastructure.Bislerium
         //for admin dashboard
         public async Task<IEnumerable<Blog>> GetBlogsByMonth(string month)
         {
-            // Parse the month string to an integer
             if (!int.TryParse(month, out int monthNumber))
             {
                 throw new ArgumentException("Invalid month format.");
             }
 
-            // Filter blogs based on the month
             var blogs = await _db.Blogs
                 .Where(b => b.CreatedDateTime.Month == monthNumber)
+                .Include(b => b.User)
                 .ToListAsync();
 
             return blogs;
+        }
+
+        public async Task<IEnumerable<Blog>> GetTop10BlogPosts()
+        {
+            var top10Posts = await _db.Blogs.OrderByDescending(b => b.Popularity).Take(10).ToListAsync();
+            return top10Posts;
+        }
+
+        public async Task<IEnumerable<Blog>> GetTop10Bloggers()
+        {
+            var top10Bloggers = await _db.Blogs
+                .GroupBy(b => b.UserId)
+                .Select(g => new { UserId = g.Key, Popularity = g.Sum(b => b.Popularity) })
+                .OrderByDescending(g => g.Popularity)
+                .Take(10)
+                .SelectMany(g => _db.Blogs.Where(b => b.UserId == g.UserId))
+                .Include(u => u.User)
+                .ToListAsync();
+
+            return top10Bloggers;
+        }
+
+
+
+        public async Task<IEnumerable<Blog>> GetTop10BlogPosts(string month)
+        {
+            var blogs = await GetBlogsByMonth(month);
+            var top10Posts = blogs.OrderByDescending(b => b.Popularity).Take(10).ToList();
+            return top10Posts;
+        }
+
+        public async Task<IEnumerable<Blog>> GetTop10Bloggers(string month)
+        {
+            var blogs = await GetBlogsByMonth(month);
+            var top10Bloggers = blogs.GroupBy(b => b.UserId)
+                                    .OrderByDescending(g => g.Sum(b => b.Popularity))
+                                    .Take(10)
+                                    .SelectMany(g => g)
+                                    .ToList();
+            return top10Bloggers;
         }
 
     }

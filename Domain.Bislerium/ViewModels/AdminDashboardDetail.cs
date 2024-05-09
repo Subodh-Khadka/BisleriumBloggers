@@ -20,5 +20,13 @@ namespace Domain.Bislerium.ViewModels
         public int MonthTotalDownvotes { get; set; }
         public int MonthTotalComments { get; set; }
 
+        
+        public IEnumerable<Blog> Top10BlogPosts { get; set; }
+
+        public IEnumerable<Blog> Top10Bloggers { get; set; }
+        public IEnumerable<Blog> Top10MonthlyBlogPosts { get; set; }
+
+        public IEnumerable<Blog> Top10MonthlyBloggers { get; set; }
+
     }
 }

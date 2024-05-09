@@ -23,6 +23,12 @@ namespace Application.Bislerium
 
         Task<IEnumerable<Blog>> GetBlogsByMonth(string month);
 
+        Task<IEnumerable<Blog>> GetTop10BlogPosts(); 
+        Task<IEnumerable<Blog>> GetTop10Bloggers();
+
+        Task<IEnumerable<Blog>> GetTop10BlogPosts(string month);
+        Task<IEnumerable<Blog>> GetTop10Bloggers(string month);
+
 
     }
 }

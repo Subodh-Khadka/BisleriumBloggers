@@ -1,5 +1,7 @@
 ﻿using Application.Bislerium;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Presentation.Bislerium.Controllers
 {
@@ -26,8 +28,13 @@ namespace Presentation.Bislerium.Controllers
                         return NotFound("Dashboard data not found.");
                     }
 
-                    
-                    return Ok(allTimeData);
+                    var options = new JsonSerializerOptions
+                    {
+                        ReferenceHandler = ReferenceHandler.Preserve,
+                        // Other options as needed
+                    };
+
+                    return Ok(JsonSerializer.Serialize(allTimeData, options));
                 }
                 else
                 {
@@ -38,8 +45,14 @@ namespace Presentation.Bislerium.Controllers
                         return NotFound($"Dashboard data for {month} not found.");
                     }
 
+                    var options = new JsonSerializerOptions
+                    {
+                        ReferenceHandler = ReferenceHandler.Preserve,
+                        // Other options as needed
+                    };
+
                     ViewBag.IsAllTime = false;
-                    return Ok(monthlyData);
+                    return Ok(JsonSerializer.Serialize(monthlyData, options));
                 }
             }
             catch (Exception ex)
