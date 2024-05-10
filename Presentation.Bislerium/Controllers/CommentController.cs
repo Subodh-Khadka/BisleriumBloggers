@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Bislerium.Controllers
 {
+    
     public class CommentController : Controller
     {
         private readonly ApplicationDbContext _db;
@@ -19,7 +20,7 @@ namespace Presentation.Bislerium.Controllers
             _commentService = commentService;
         }
 
-
+        [Authorize(Roles = "Blogger")]
         [HttpPost("AddComment")]
         public async Task<IActionResult> AddComment([FromBody] Comment comment)
         {
@@ -54,6 +55,7 @@ namespace Presentation.Bislerium.Controllers
             return Ok(comment);
         }
 
+        [Authorize(Roles = "Blogger")]
         [HttpPut("UpdateComment")]
         public async Task<IActionResult> UpdateComment([FromBody] Comment comment)
         {
@@ -66,6 +68,7 @@ namespace Presentation.Bislerium.Controllers
             return Ok(updatedComment);
         }
 
+        [Authorize(Roles = "Blogger")]
         [HttpDelete("DeleteComment/{id}")]
         public async Task<IActionResult> DeleteComment(Guid Id)
         {
@@ -80,6 +83,7 @@ namespace Presentation.Bislerium.Controllers
             return Ok(comments);
         }
 
+        [Authorize(Roles = "Blogger")]
         [HttpPut("UpdateCommentUpVote/{commentId}")]
         public async Task<IActionResult> UpdateCommentUpVote(Guid commentId,string userId)
         {
@@ -94,6 +98,7 @@ namespace Presentation.Bislerium.Controllers
             }
         }
 
+        [Authorize(Roles = "Blogger")]
         [HttpPut("UpdateCommentDownVote/{commentId}")]
         public async Task<IActionResult> UpdateCommentDownVote(Guid commentId, string userId)
         {

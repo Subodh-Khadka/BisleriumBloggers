@@ -1,14 +1,19 @@
-﻿using Domain.Bislerium;
+﻿using Azure.Core;
+using Domain.Bislerium;
 using Domain.Bislerium.ViewModels;
+using Infrastructure.Bislerium;
 using Infrastructure.Bislerium.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+
 
 public class AccountController : Controller
 {
@@ -17,9 +22,10 @@ public class AccountController : Controller
     private readonly IConfiguration _configuration;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ApplicationDbContext _db;
+    private readonly IEmailSender _emailSender;
     public record LoginResponse(bool Flag, string Token, string Message);
     public record UserSession(string? Id, string? Name, string? Email, string? Role);
-    public AccountController(UserManager<ApplicationUser> userManager,
+    public AccountController(UserManager<ApplicationUser> userManager, IEmailSender emailSender,
     RoleManager<IdentityRole> roleManager, IConfiguration configuration,
     ApplicationDbContext db,
     SignInManager<ApplicationUser> signInManager)
@@ -29,6 +35,7 @@ public class AccountController : Controller
         _roleManager = roleManager;
         _configuration = configuration;
         _signInManager = signInManager;
+        _emailSender = emailSender;
         _db = db;
     }
 
@@ -139,6 +146,7 @@ public class AccountController : Controller
         return userProfile;
     }
 
+    [Authorize]
     [HttpPost("UpdateUser/{userId}")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> EditUserProfile(string userId, UserProfileVm updatedProfile, IFormFile profilePicture)
@@ -188,6 +196,7 @@ public class AccountController : Controller
         }
     }
 
+    [Authorize(Roles ="Admin")]
     [HttpGet("GetUsers")]
     public async Task<IActionResult> GetUsers()
     {
@@ -196,6 +205,7 @@ public class AccountController : Controller
     }
 
 
+    [Authorize]
     [HttpPut("changePassword/{userId}")]
     public async Task<IActionResult> ChangePassword(string userId, [FromBody] ChangePasswordViewModel model)
     {
@@ -214,7 +224,73 @@ public class AccountController : Controller
         return BadRequest(result.Errors);
     }
 
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user == null)
+        {
+            return Ok("User does not exist");
+        }
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        try
+        {
+            // Send the reset token to the user's email
+            await _emailSender.SendEmailAsync(email, "Reset password", $"Your password reset token is: {token}");
+
+            return Ok("Reset token sent to your email.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while sending the email: {ex.Message}");
+        }
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordVm model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+        {
+            return NotFound("User not found");
+        }
+
+        var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+        if (result.Succeeded)
+        {
+            return Ok("Password reset completed.");
+        }
+
+        return BadRequest(ModelState);
+    }
+
+    [Authorize]
+    [HttpDelete("delete-user/{userId}")]
+    public async Task<IActionResult> DeleteUser(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var result = await _userManager.DeleteAsync(user);
+        if (result.Succeeded)
+        {
+            return Ok("User deleted successfully.");
+        }
+
+        return BadRequest(result.Errors);
+    }
+
+
 }
-
-
 

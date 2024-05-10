@@ -43,6 +43,7 @@ namespace Infrastructure.Bislerium
 
             blog.CommentCount++;
             _db.Blogs.Update(blog);
+            await _db.SaveChangesAsync();
 
             return result.Entity;
         }

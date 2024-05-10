@@ -93,8 +93,6 @@ namespace Infrastructure.Bislerium
                 return await GetAllTimeData();
             }
         }
-
-
     }
 }
 

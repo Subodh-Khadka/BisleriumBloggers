@@ -1,10 +1,12 @@
 ﻿using Domain.Bislerium;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Text;
 
 namespace Bislerium.MVC.Controllers
 {
+    [Authorize(Roles = "Blogger")]
     public class CommentController : Controller
     {
         private readonly HttpClient _httpClient;

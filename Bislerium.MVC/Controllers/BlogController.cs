@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MVC.Frontend.Controllers
 {
+    [Authorize(Roles = "Blogger")]
     public class BlogController : Controller
     {
         private readonly HttpClient _httpClient;
@@ -28,8 +29,8 @@ namespace MVC.Frontend.Controllers
             var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
             {
-                
-                return Unauthorized(); 
+
+                return Unauthorized();
             }
 
             var userId = userIdClaim.Value;
@@ -61,7 +62,7 @@ namespace MVC.Frontend.Controllers
             if (image != null && image.Length > 3 * 1024 * 1024)
             {
                 ModelState.AddModelError("Image", "The image size must be less than or equal to 3 MB.");
-                return View(newBlog); 
+                return View(newBlog);
             }
 
             var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
@@ -89,7 +90,7 @@ namespace MVC.Frontend.Controllers
                 {
                     var imageContent = new StreamContent(image.OpenReadStream());
                     imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(image.ContentType);
-                    formData.Add(imageContent, "image", image.FileName); 
+                    formData.Add(imageContent, "image", image.FileName);
                 }
 
                 using (var client = new HttpClient())
@@ -131,7 +132,7 @@ namespace MVC.Frontend.Controllers
             }
             else
             {
-                return View("Error","Home");
+                return View("Error", "Home");
             }
         }
 
@@ -184,7 +185,7 @@ namespace MVC.Frontend.Controllers
                                 Action = "Edit",
                                 UpdatedBy = userId,
                                 UpdatedDate = DateTime.Now,
-                                OldVContent = existingBlog.Description, 
+                                OldVContent = existingBlog.Description,
                                 NewContent = updatedBlog.Description,
                                 //NewContent = JsonConvert.SerializeObject(updatedBlog)
                             };
@@ -194,26 +195,26 @@ namespace MVC.Frontend.Controllers
                             var historyResponse = await httpClient.PostAsync("https://localhost:7241/api/History/AddHistory", jsonContent);
                             if (!historyResponse.IsSuccessStatusCode)
                             {
-                                return RedirectToAction("Error","Home");   
+                                return RedirectToAction("Error", "Home");
                             }
 
                             return RedirectToAction("Index", "Blog");
                         }
                         else
                         {
-                            return View("Error","Home");
+                            return View("Error", "Home");
                         }
                     }
                     else
                     {
-                        return View("Error","Home");
+                        return View("Error", "Home");
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return View("Error","Home");
+                return View("Error", "Home");
             }
         }
 
@@ -239,6 +240,6 @@ namespace MVC.Frontend.Controllers
                 Console.WriteLine($"{ex}");
                 return View("Error");
             }
-        }   
+        }
     }
 }

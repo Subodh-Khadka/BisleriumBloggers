@@ -22,14 +22,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>();
 
-//builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-//    .AddEntityFrameworkStores<ApplicationDbContext>()
-//    .AddApiEndpoints();
-
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddSignInManager()
-.AddRoles<IdentityRole>();
+.AddRoles<IdentityRole>().AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -78,6 +74,7 @@ builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IHistoryService, HistoryService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
 
 builder.Services.AddScoped<CascadingAuthenticationState, CascadingAuthenticationState>();
 
@@ -92,32 +89,10 @@ builder.Services.AddCors(options =>
         });
 });
 
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-//})
-//            .AddJwtBearer(options =>
-//            {
-//                // Configure the JWT bearer authentication parameters here
-//                options.TokenValidationParameters = new TokenValidationParameters
-//                {
-//                    ValidateIssuer = true,
-//                    ValidateAudience = true,
-//                    ValidateLifetime = true,
-//                    ValidateIssuerSigningKey = true,
-//                    // Set your issuer signing key, valid audience, and valid issuer
-//                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("8/wVwKtv3Sl4eAjhZtg3wIUuQ/+KqWkx/jRsAlx6pXe1+UBBhcRqy6BtsTpQFmo+JZ6XQVbBYNDC1wuSdnImHw==")),
-//                    ValidAudience = "https://localhost:7241",
-//                    ValidIssuer = "https://localhost:7241"
-//                };
-//            });
-
 
 builder.Services.AddHttpClient();
 builder.Services.AddAuthentication();
-//builder.Services.AddBlazoredLocalStorage();
+
 
 
 var app = builder.Build();

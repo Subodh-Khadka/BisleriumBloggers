@@ -5,9 +5,11 @@ using System.Text.Json;
 using Domain.Bislerium.ViewModels;
 using Newtonsoft.Json;
 using System.Net.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bislerium.MVC.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly HttpClient _httpClient;

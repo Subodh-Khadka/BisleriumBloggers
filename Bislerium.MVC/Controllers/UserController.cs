@@ -1,15 +1,19 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Domain.Bislerium;
 using Domain.Bislerium.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using static System.Collections.Specialized.BitVector32;
 using static AccountController;
 
 namespace Bislerium.MVC.Controllers
@@ -17,7 +21,6 @@ namespace Bislerium.MVC.Controllers
     public class UserController : Controller
     {
         private readonly HttpClient _httpClient;
-
         public UserController(HttpClient httpClient)
         {
             _httpClient = httpClient;
@@ -129,6 +132,7 @@ namespace Bislerium.MVC.Controllers
             }
         }
 
+        [Authorize]
         public async Task<IActionResult> UserProfile()
         {
             try
@@ -154,6 +158,7 @@ namespace Bislerium.MVC.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> UserProfile(UserProfileVm updatedProfile, IFormFile profilePicture)
         {
@@ -200,7 +205,8 @@ namespace Bislerium.MVC.Controllers
                 return View(updatedProfile);
             }
         }
-        
+
+        [Authorize]
         public async Task<IActionResult> ChangePassword()
         {
             return View();
@@ -241,7 +247,83 @@ namespace Bislerium.MVC.Controllers
             }
         }
 
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordVm model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var response = await _httpClient.PostAsync($"https://localhost:7241/forgot-password?email={model.Email}", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var message = await response.Content.ReadAsStringAsync();
+                TempData["SuccessMessage"] = message;
+                return RedirectToAction("ResetPassword", new { email = model.Email });
+
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError(string.Empty, errorMessage);
+                return View(model);
+            }
+        }
+
+
+        public IActionResult ResetPassword(string email)
+        {
+            var model = new ResetPasswordVm { Email = email };
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string email, string token, string newPassword, string confirmPassword)
+        {
+            try
+            {
+                var requestData = new
+                {
+                    Email = email,
+                    Token = token,
+                    NewPassword = newPassword,
+                    ConfirmPassword = confirmPassword,
+                };
+
+                var response = await _httpClient.PostAsJsonAsync("https://localhost:7241/reset-password", requestData);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var message = await response.Content.ReadAsStringAsync();
+                    TempData["SuccessMessage"] = message;
+                    return RedirectToAction(nameof(ResetPasswordConfirmation));
+                }
+                else
+                {
+                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    ModelState.AddModelError(string.Empty, errorMessage);
+                    return View();
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
+        }
 
         public async Task<IActionResult> Logout()
         {
@@ -249,6 +331,24 @@ namespace Bislerium.MVC.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        [Authorize]
+        [HttpPost("delete-user/{userId}")]  
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUser(string userId)
+        {
+            var response = await _httpClient.DeleteAsync($"https://localhost:7241/delete-user/{userId}");
 
+            if (response.IsSuccessStatusCode)
+            {
+                //await _signInManager.SignOutAsync(); 
+                return RedirectToAction("Index", "Home"); 
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError(string.Empty, errorMessage);
+                return View("Error");
+            }
+        }
     }
 }

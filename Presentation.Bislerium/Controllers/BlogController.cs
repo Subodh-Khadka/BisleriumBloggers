@@ -19,6 +19,7 @@ namespace Presentation.Bislerium.Controllers
             _blogService = blogService;
         }
 
+        [Authorize(Roles = "Blogger")]
         [HttpPost("AddBlog")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> AddBlog([FromForm] Blog blog, IFormFile image)
@@ -55,6 +56,7 @@ namespace Presentation.Bislerium.Controllers
             return Ok(blog);
         }
 
+        [Authorize(Roles = "Blogger")]
         [HttpPut("UpdateBlog")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UpdateBlog(Guid blogId, Blog blog, IFormFile image)
@@ -69,6 +71,7 @@ namespace Presentation.Bislerium.Controllers
             return Ok(updatedBlog);
         }
 
+        [Authorize(Roles = "Blogger")]
         [HttpPut("UpdateBlogUpVote/{id}")]
         public async Task<IActionResult> UpdateBlogUpVote(Guid id, string userId)
         {
@@ -83,6 +86,8 @@ namespace Presentation.Bislerium.Controllers
             }
         }
 
+
+        [Authorize(Roles = "Blogger")]
         [HttpPut("UpdateBlogDownVote/{id}")]
         public async Task<IActionResult> UpdateBlogDownVote(Guid id, string userId)
         {
@@ -98,6 +103,7 @@ namespace Presentation.Bislerium.Controllers
         }
 
 
+        [Authorize(Roles = "Blogger")]
         [HttpDelete("DeleteBlog/{id}")]
         public async Task<IActionResult> DeleteBlog(Guid id)
         {

@@ -13,6 +13,7 @@ using System.Text;
 
 namespace Presentation.Bislerium.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class HistoryController : Controller

@@ -2,6 +2,7 @@ using Bislerium.MVC.Models;
 using Domain.Bislerium;
 using Domain.Bislerium.ViewModels;
 using Infrastructure.Bislerium.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
@@ -97,6 +98,7 @@ namespace Bislerium.MVC.Controllers
         }
 
 
+        [Authorize(Roles = "Blogger")]
         [HttpPost]
         public async Task<IActionResult> UpdateBlogUpVote(Guid blogId)
         {
@@ -129,6 +131,7 @@ namespace Bislerium.MVC.Controllers
         }
 
 
+        [Authorize(Roles = "Blogger")]
         [HttpPost]
         public async Task<IActionResult> UpdateBlogDownVote(Guid blogId)
         {
@@ -158,7 +161,7 @@ namespace Bislerium.MVC.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Blogger")]
         [HttpPost]
         public async Task<IActionResult> AddComment(Guid blogId, string content)
         {
@@ -204,6 +207,7 @@ namespace Bislerium.MVC.Controllers
             }
         }
 
+        [Authorize(Roles = "Blogger")]
         [HttpPost]
         public async Task<IActionResult> UpdateCommentUpVote(Guid commentId)
         {
@@ -237,6 +241,7 @@ namespace Bislerium.MVC.Controllers
             }
         }
 
+        [Authorize(Roles = "Blogger")]
         [HttpPost]
         public async Task<IActionResult> UpdateCommentDownVote(Guid commentId)
         {
@@ -269,10 +274,6 @@ namespace Bislerium.MVC.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
-
-
-
-
 
         public IActionResult Privacy()
         {
