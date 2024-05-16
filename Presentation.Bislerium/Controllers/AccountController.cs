@@ -81,8 +81,7 @@ public class AccountController : Controller
     public async Task<LoginResponse> Login([FromBody] LoginVm loginUser)
     {
 
-        var result = await _signInManager.PasswordSignInAsync(loginUser.Email,
-        loginUser.Password, false, lockoutOnFailure: false);
+        var result = await _signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, lockoutOnFailure: false);
         if (result.Succeeded)
         {
             var getUser = await _userManager.FindByEmailAsync(loginUser.Email);
@@ -122,6 +121,7 @@ public class AccountController : Controller
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
+    [Authorize]
     [HttpGet("UserProfile/{userId}")]
     public async Task<ActionResult<UserProfileVm>> UserProfile(string userId)
     {
@@ -161,7 +161,7 @@ public class AccountController : Controller
             }
 
             user.FullName = updatedProfile.FullName;
-            user.Email = updatedProfile.Email;
+            //user.Email = updatedProfile.Email;
             user.DateOfBirth = updatedProfile.DateOfBirth;
             user.Address = updatedProfile.Address;
             user.Bio = updatedProfile.Bio;
@@ -220,7 +220,6 @@ public class AccountController : Controller
         {
             return Ok("Password has been changed!.");
         }
-
         return BadRequest(result.Errors);
     }
 
@@ -287,10 +286,7 @@ public class AccountController : Controller
         {
             return Ok("User deleted successfully.");
         }
-
         return BadRequest(result.Errors);
     }
-
-
 }
 

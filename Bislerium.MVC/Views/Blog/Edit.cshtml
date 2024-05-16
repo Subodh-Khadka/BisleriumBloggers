@@ -16,22 +16,21 @@
             <form method="post" asp-action="EditBlog" asp-controller="Blog" enctype="multipart/form-data">
                 <div class="form-group">
                     <label asp-for="@Model.Title"></label>
-                    <input asp-for="@Model.Title" class="form-control" />
+                    <input asp-for="@Model.Title" class="form-control" required />
                 </div>
 
                 <input type="hidden" name="title" value="@Model.Title" />
 
                 <div class="form-group">
                     <label asp-for="@Model.Description"></label>
-                    <textarea asp-for="@Model.Description" class="form-control"></textarea>
+                    <textarea asp-for="@Model.Description" class="form-control" required></textarea>
                 </div>
 
                 <div class="form-group">
                     <label>Image:</label>
                     <input type="file" name="image" class="form-control" />
                 </div>
-                <input type="text" name="blogId" value="@Model.Id" class="form-control" />
-
+                <input type="hidden" name="blogId" value="@Model.Id" />
                 <button type="submit" class="btn btn-sm btn-primary mt-2">Save Changes</button>
             </form>
         </div>
@@ -43,7 +42,4 @@ else
 }
 
 @section Scripts {
-    <script>
-        // You can add any JavaScript scripts here if needed
-    </script>
 }

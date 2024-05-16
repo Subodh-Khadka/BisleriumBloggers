@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace Bislerium.MVC.Controllers
@@ -16,8 +17,18 @@ namespace Bislerium.MVC.Controllers
             _httpClient = httpClient;
         }
 
+        [Authorize]
         public async Task<IActionResult> Edit(Guid commentId)
         {
+            var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
             var response = await _httpClient.GetAsync($"https://localhost:7241/GetCommentById/{commentId}");
 
             if (response.IsSuccessStatusCode)
@@ -29,19 +40,29 @@ namespace Bislerium.MVC.Controllers
             }
             else
             {
-                return View("Error");
+                return RedirectToAction("Error","Home");
             }
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Edit(Comment comment, Guid blogId)
         {
+            var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
             try
             {
                 var existingCommentResponse = await _httpClient.GetAsync($"https://localhost:7241/GetCommentById/{comment.Id}");
                 if (!existingCommentResponse.IsSuccessStatusCode)
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Error","Home");
                 }
 
                 var existingCommentJson = await existingCommentResponse.Content.ReadAsStringAsync();
@@ -80,11 +101,18 @@ namespace Bislerium.MVC.Controllers
         }
 
 
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> DeleteComment(Guid commentId,Guid blogId)
         {
-            
+            var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             try
             {
                 var response = await _httpClient.DeleteAsync($"https://localhost:7241/DeleteComment/{commentId}");
@@ -95,7 +123,7 @@ namespace Bislerium.MVC.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Error","Home");
                 }
             }
             catch (Exception ex)

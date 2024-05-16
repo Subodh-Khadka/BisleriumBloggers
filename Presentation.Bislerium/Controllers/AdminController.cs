@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Presentation.Bislerium.Controllers
 {
-    [Authorize(Roles ="Admin")]
+    
     public class AdminController : Controller
     {
         private readonly IAdminService _adminService;
@@ -16,6 +16,7 @@ namespace Presentation.Bislerium.Controllers
             _adminService = adminService;
         }
 
+        [Authorize(Roles ="Admin")]
         [HttpGet("dashboard")]
         public async Task<IActionResult> GetAdminDashboardData(string month)
         {
@@ -33,7 +34,6 @@ namespace Presentation.Bislerium.Controllers
                     var options = new JsonSerializerOptions
                     {
                         ReferenceHandler = ReferenceHandler.Preserve,
-                        // Other options as needed
                     };
 
                     return Ok(JsonSerializer.Serialize(allTimeData, options));
@@ -50,7 +50,6 @@ namespace Presentation.Bislerium.Controllers
                     var options = new JsonSerializerOptions
                     {
                         ReferenceHandler = ReferenceHandler.Preserve,
-                        // Other options as needed
                     };
 
                     ViewBag.IsAllTime = false;

@@ -13,11 +13,11 @@ builder.Services.AddHttpClient("BackendApi", client =>
     client.BaseAddress = new Uri("https://localhost:7241/");
 });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Admin", policy =>
-        policy.RequireClaim(ClaimTypes.Role, "Admin"));
-});
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.AddPolicy("Admin", policy =>
+//        policy.RequireClaim(ClaimTypes.Role, "Admin"));
+//});
 
 builder.Services.AddAuthentication(options =>
 {
@@ -29,6 +29,7 @@ builder.Services.AddAuthentication(options =>
            .AddCookie(options =>
            {
                options.LoginPath = "/User/Login";
+               options.AccessDeniedPath = "/User/AccessDenied";
            });
 
 builder.Services.AddHttpClient();

@@ -79,15 +79,15 @@ builder.Services.AddSingleton<IEmailSender, EmailSender>();
 builder.Services.AddScoped<CascadingAuthenticationState, CascadingAuthenticationState>();
 
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: "Blazor",
-        policy =>
-        {
-            policy.WithOrigins("https://localhost:7241")
-            .AllowAnyHeader() .AllowAnyMethod();
-        });
-});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy(name: "Blazor",
+//        policy =>
+//        {
+//            policy.WithOrigins("https://localhost:7241")
+//            .AllowAnyHeader() .AllowAnyMethod();
+//        });
+//});
 
 
 builder.Services.AddHttpClient();

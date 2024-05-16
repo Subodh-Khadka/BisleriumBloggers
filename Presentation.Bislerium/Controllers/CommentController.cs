@@ -24,8 +24,7 @@ namespace Presentation.Bislerium.Controllers
         [HttpPost("AddComment")]
         public async Task<IActionResult> AddComment([FromBody] Comment comment)
         {
-            
-
+            comment.Id = Guid.NewGuid();
             if (comment == null)
             {
                 return BadRequest("Comment Null");
@@ -44,6 +43,7 @@ namespace Presentation.Bislerium.Controllers
             return Ok(comments);
         }
 
+        [Authorize]
         [HttpGet("GetCommentById/{id}")]
         public async Task<IActionResult> GetCommentById(Guid id)
         {
@@ -54,6 +54,7 @@ namespace Presentation.Bislerium.Controllers
             }
             return Ok(comment);
         }
+
 
         [Authorize(Roles = "Blogger")]
         [HttpPut("UpdateComment")]

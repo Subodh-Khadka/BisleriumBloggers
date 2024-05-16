@@ -4,7 +4,9 @@ using Domain.Bislerium.ViewModels;
 using Infrastructure.Bislerium;
 using Infrastructure.Bislerium.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Presentation.Bislerium.Controllers
 {
@@ -12,11 +14,13 @@ namespace Presentation.Bislerium.Controllers
     {
         private readonly ApplicationDbContext _db;
         private readonly IBlogService _blogService;
+        private readonly IEmailSender _emailSender;
 
-        public BlogController(ApplicationDbContext db, IBlogService blogService)
+        public BlogController(ApplicationDbContext db, IBlogService blogService, IEmailSender emailSender)
         {
             _db = db;
             _blogService = blogService;
+            _emailSender = emailSender;
         }
 
         [Authorize(Roles = "Blogger")]
@@ -37,7 +41,7 @@ namespace Presentation.Bislerium.Controllers
             return Ok(newBlog);
         }
 
-        
+
         [HttpGet("GetAllBlogs")]
         public async Task<IActionResult> GetAllBlogs()
         {
@@ -45,6 +49,7 @@ namespace Presentation.Bislerium.Controllers
             return Ok(blogs);
         }
 
+      
         [HttpGet("GetBlogById/{id}")]
         public async Task<IActionResult> GetBlogById(Guid id)
         {
@@ -56,7 +61,7 @@ namespace Presentation.Bislerium.Controllers
             return Ok(blog);
         }
 
-        [Authorize(Roles = "Blogger")]
+        [Authorize]
         [HttpPut("UpdateBlog")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UpdateBlog(Guid blogId, Blog blog, IFormFile image)
@@ -71,13 +76,19 @@ namespace Presentation.Bislerium.Controllers
             return Ok(updatedBlog);
         }
 
+
         [Authorize(Roles = "Blogger")]
         [HttpPut("UpdateBlogUpVote/{id}")]
         public async Task<IActionResult> UpdateBlogUpVote(Guid id, string userId)
         {
+            var blog = await _db.Blogs.Include(b => b.User).FirstOrDefaultAsync(b => b.Id == id);
+            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userId);   
+            var blogOwner = blog.User.Email;
+
             try
             {
                 var updatedBlog = await _blogService.UpdateBlogUpVote(id, userId);
+                await _emailSender.SendEmailAsync(blogOwner, "New Upvote", $"Your blog post has received a new upvote by {user.FullName}!");
                 return Ok(updatedBlog);
             }
             catch (KeyNotFoundException)
@@ -91,9 +102,14 @@ namespace Presentation.Bislerium.Controllers
         [HttpPut("UpdateBlogDownVote/{id}")]
         public async Task<IActionResult> UpdateBlogDownVote(Guid id, string userId)
         {
+            var blog = await _db.Blogs.Include(b => b.User).FirstOrDefaultAsync(b => b.Id == id);
+            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userId);
+            var blogOwner = blog.User.Email;
+
             try
             {
                 var updatedBlog = await _blogService.UpdateBlogDownVote(id, userId);
+                await _emailSender.SendEmailAsync(blogOwner, "New DownVote", $"Your blog post has received a new downvote by {user.FullName}!");
                 return Ok(updatedBlog);
             }
             catch (KeyNotFoundException)
@@ -111,7 +127,7 @@ namespace Presentation.Bislerium.Controllers
             return Ok("BlogDeleted"); 
         }
 
-
+        [Authorize(Roles ="Blogger")]
         [HttpGet("GetAllBlogsUserId/{userId}")]
         public async Task<IActionResult> GetAllBlogsUserId(string userId)
         {

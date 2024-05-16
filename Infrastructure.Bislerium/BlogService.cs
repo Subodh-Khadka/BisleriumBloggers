@@ -30,7 +30,7 @@ namespace Infrastructure.Bislerium
                 throw new ArgumentNullException(nameof(blog));
             }
 
-            if (image != null && image.Length > 0)
+            if (image != null && image.Length > 0)  
             {
 
                 var fileName = $"{Guid.NewGuid().ToString()}{Path.GetExtension(image.FileName)}";
@@ -289,7 +289,6 @@ namespace Infrastructure.Bislerium
                 .ToListAsync();
  
             top10Bloggers = top10Bloggers.GroupBy(b => b.UserId).Select(g => g.First()).ToList();
-
             return top10Bloggers;
         }
 

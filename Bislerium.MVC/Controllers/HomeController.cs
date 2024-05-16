@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 
@@ -106,6 +107,15 @@ namespace Bislerium.MVC.Controllers
             var userId = userIdClaim.Value;
             try
             {
+                var accessToken = Request.Cookies["AccessToken"];
+
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    return RedirectToAction("Login", "User");
+                }
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
                 var requestUrl = $"https://localhost:7241/UpdateBlogUpVote/{blogId}?userId={userId}";
 
                 var response = await _httpClient.PutAsync(requestUrl, null);
@@ -121,7 +131,7 @@ namespace Bislerium.MVC.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction("AccessDenied", "User");
                 }
             }
             catch (Exception ex)
@@ -137,6 +147,15 @@ namespace Bislerium.MVC.Controllers
         {
             var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
+
+            var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             try
             {
@@ -165,8 +184,17 @@ namespace Bislerium.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> AddComment(Guid blogId, string content)
         {
-              var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+            var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
+
+            var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             try
             {
@@ -181,7 +209,7 @@ namespace Bislerium.MVC.Controllers
                     Popularity = 0,
                     CreatedDate = DateTime.Now,
                     UpdateDate = DateTime.Now,
-                    Id = Guid.NewGuid(),
+                    
                 };
 
                 var json = JsonConvert.SerializeObject(comment);
@@ -198,7 +226,7 @@ namespace Bislerium.MVC.Controllers
                 else
                 {
                     var popularityResponse = await _httpClient.PutAsync($"https://localhost:7241/CalculateBlogPopularity/{blogId}", null);
-                    return RedirectToAction("Index");
+                    return RedirectToAction("BlogDetail", new { blogId });
                 }
             }
             catch (Exception ex)
@@ -206,6 +234,7 @@ namespace Bislerium.MVC.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
 
         [Authorize(Roles = "Blogger")]
         [HttpPost]
@@ -217,6 +246,16 @@ namespace Bislerium.MVC.Controllers
             var comment = await _db.Comments.FindAsync(commentId);
             var blog = await _db.Blogs.FindAsync(comment.BlogId);
             var blogId = blog.Id;
+
+            var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
 
             try
             {
@@ -232,7 +271,7 @@ namespace Bislerium.MVC.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Error","Home");
+                    return RedirectToAction("Error", "Home");
                 }
             }
             catch (Exception ex)
@@ -251,6 +290,15 @@ namespace Bislerium.MVC.Controllers
             var comment = await _db.Comments.FindAsync(commentId);
             var blog = await _db.Blogs.FindAsync(comment.BlogId);
             var blogId = blog.Id;
+
+            var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             try
             {

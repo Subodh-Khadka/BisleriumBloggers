@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using static System.Collections.Specialized.BitVector32;
+using static System.Net.Mime.MediaTypeNames;
 using static AccountController;
 
 namespace Bislerium.MVC.Controllers
@@ -46,7 +48,7 @@ namespace Bislerium.MVC.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Register");
             }
             else
             {
@@ -55,12 +57,10 @@ namespace Bislerium.MVC.Controllers
             }
         }
 
-
         public async Task<IActionResult> Login()
         {
             return View();
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginVm model)
@@ -93,14 +93,29 @@ namespace Bislerium.MVC.Controllers
                     var email = token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
                     var role = token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
+                    // Store token in a cookie
+                    HttpContext.Response.Cookies.Append("AccessToken", loginResponse.Token, new CookieOptions
+                    {
+                        Expires = DateTimeOffset.Now.AddDays(1),
+                        HttpOnly = true,
+                        Secure = true
+                    });
+
+                    HttpContext.Response.Cookies.Append("UserId", userId, new CookieOptions
+                    {
+                        Expires = DateTimeOffset.Now.AddDays(1),
+                        HttpOnly = true,
+                        Secure = true
+                    });
+
                     var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, userId),
-                 new Claim(ClaimTypes.Name, name),
-                 new Claim(ClaimTypes.Email, email),
-                new Claim(ClaimTypes.Role, role),
-                new Claim(ClaimTypes.Email, email),
-            };
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, userId),
+                        new Claim(ClaimTypes.Name, name),
+                        new Claim(ClaimTypes.Email, email),
+                        new Claim(ClaimTypes.Role, role),
+                        new Claim(ClaimTypes.Email, email),
+                    };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -118,19 +133,20 @@ namespace Bislerium.MVC.Controllers
                     {
                         return RedirectToAction("Error", "Home");
                     }
-                }
+                }   
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ViewData["ErrorMessage"] = "Invalid login attempt.";
                     return View(model);
                 }
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "Server error. Please try again later.");
+                ModelState.AddModelError(string.Empty, "Please try again later.");
                 return View(model);
             }
         }
+
 
         [Authorize]
         public async Task<IActionResult> UserProfile()
@@ -138,6 +154,15 @@ namespace Bislerium.MVC.Controllers
             try
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var accessToken = Request.Cookies["AccessToken"];
+
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    return RedirectToAction("AccessDenied", "User");
+                }
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
                 var response = await _httpClient.GetAsync($"https://localhost:7241/UserProfile/{userId}");
 
@@ -162,7 +187,16 @@ namespace Bislerium.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> UserProfile(UserProfileVm updatedProfile, IFormFile profilePicture)
         {
+
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             if (string.IsNullOrEmpty(userId))
             {
@@ -175,10 +209,16 @@ namespace Bislerium.MVC.Controllers
 
                 formData.Add(new StringContent(userId), "userId");
                 formData.Add(new StringContent(updatedProfile.FullName), "FullName");
-                formData.Add(new StringContent(updatedProfile.Email), "Email");
+                //formData.Add(new StringContent(updatedProfile.Email), "Email");
                 formData.Add(new StringContent(updatedProfile.Bio ?? ""), "Bio");
                 formData.Add(new StringContent(updatedProfile.DateOfBirth?.ToString("yyyy-MM-dd") ?? ""), "DateOfBirth");
                 formData.Add(new StringContent(updatedProfile.Address ?? ""), "Address");
+
+                if (profilePicture != null && profilePicture.Length > 3 * 1024 * 1024)
+                {
+                    ViewData["ErrorMessage"] = "Image size limit is 3MB";
+                    return View(updatedProfile);
+                }
 
                 if (profilePicture != null && profilePicture.Length > 0)
                 {
@@ -197,12 +237,12 @@ namespace Bislerium.MVC.Controllers
                 {
                     var errorResponse = await response.Content.ReadAsStringAsync();
                     ModelState.AddModelError(string.Empty, errorResponse);
-                    return View(updatedProfile);
+                    return RedirectToAction("Error", "Home");
                 }
             }
             catch (Exception ex)
             {
-                return View(updatedProfile);
+                return RedirectToAction("Error","Home");
             }
         }
 
@@ -216,6 +256,15 @@ namespace Bislerium.MVC.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             if (string.IsNullOrEmpty(userId))
             {
@@ -289,6 +338,13 @@ namespace Bislerium.MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(string email, string token, string newPassword, string confirmPassword)
         {
+            if (newPassword != confirmPassword)
+            {
+                ViewData["Error"] = "Password Mismatch";
+                var model = new ResetPasswordVm { Email = email };
+                return View(model);
+            }
+
             try
             {
                 var requestData = new
@@ -303,20 +359,22 @@ namespace Bislerium.MVC.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var message = await response.Content.ReadAsStringAsync();
+                    var message = "Password Updated";
                     TempData["SuccessMessage"] = message;
                     return RedirectToAction(nameof(ResetPasswordConfirmation));
                 }
                 else
                 {
-                    var errorMessage = await response.Content.ReadAsStringAsync();
-                    ModelState.AddModelError(string.Empty, errorMessage);
-                    return View();
+                    ViewData["ErrorMessage"] = "Password Update Failed";
+                    var model = new ResetPasswordVm { Email = email };
+                    return View(model);
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
+                ViewData["ErrorMessage"] = "Password Update Failed";
+                var model = new ResetPasswordVm { Email = email };
+                return View(model);
             }
         }
 
@@ -325,23 +383,43 @@ namespace Bislerium.MVC.Controllers
             return View();
         }
 
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            Response.Cookies.Delete("AccessToken");
+            Response.Cookies.Delete("UserId");
+
             return RedirectToAction("Index", "Home");
         }
 
         [Authorize]
-        [HttpPost("delete-user/{userId}")]  
+        [HttpPost("delete-user/{userId}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUser(string userId)
         {
+            var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
             var response = await _httpClient.DeleteAsync($"https://localhost:7241/delete-user/{userId}");
 
             if (response.IsSuccessStatusCode)
             {
-                //await _signInManager.SignOutAsync(); 
-                return RedirectToAction("Index", "Home"); 
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                Response.Cookies.Delete("AccessToken");
+                Response.Cookies.Delete("UserId");
+                return RedirectToAction("Index", "Home");
             }
             else
             {

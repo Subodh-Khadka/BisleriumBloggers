@@ -4,6 +4,7 @@ using Domain.Bislerium.ViewModels;
 using Infrastructure.Bislerium.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -18,20 +19,26 @@ namespace Infrastructure.Bislerium
     public class CommentService : ICommentService
     {
         private readonly ApplicationDbContext _db;
+        private readonly IEmailSender _emailSender;
 
-        public CommentService(ApplicationDbContext db)
+        public CommentService(ApplicationDbContext db, IEmailSender emailSender)
         {
             _db = db;
+            _emailSender = emailSender; 
         }
 
         public async Task<Comment> AddComment(Comment comment)
         {
+            var blog = await _db.Blogs.Include(b => b.User).FirstOrDefaultAsync(b => b.Id == comment.BlogId);
+            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == comment.UserId);
+            var blogOwner = blog.User.Email;
+
             if (comment == null)
             {
                 throw new ArgumentNullException(nameof(comment));
             }
 
-            var blog = await _db.Blogs.FindAsync(comment.BlogId);
+            //var blog = await _db.Blogs.FindAsync(comment.BlogId);
 
             if (blog == null)
             {
@@ -40,6 +47,7 @@ namespace Infrastructure.Bislerium
 
             var result = await _db.Comments.AddAsync(comment);
             await _db.SaveChangesAsync();
+            await _emailSender.SendEmailAsync(blogOwner, "New Comment", $"Your blog post has received a new comment by {user.FullName}!");
 
             blog.CommentCount++;
             _db.Blogs.Update(blog);

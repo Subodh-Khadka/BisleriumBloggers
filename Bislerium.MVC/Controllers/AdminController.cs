@@ -6,10 +6,11 @@ using Domain.Bislerium.ViewModels;
 using Newtonsoft.Json;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authorization;
+using System.Net.Http.Headers;
 
 namespace Bislerium.MVC.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    
     public class AdminController : Controller
     {
         private readonly HttpClient _httpClient;
@@ -19,14 +20,23 @@ namespace Bislerium.MVC.Controllers
             _httpClient = httpClient;
         }
 
-
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Register()
         {
             return View();
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index(string month)
         {
+            var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             try
             {
                 string url = "https://localhost:7241/dashboard";
@@ -57,8 +67,17 @@ namespace Bislerium.MVC.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index1(string month)
         {
+            var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             try
             {
                 string url = "https://localhost:7241/dashboard";
@@ -89,8 +108,17 @@ namespace Bislerium.MVC.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index2(string month)
         {
+             var accessToken = Request.Cookies["AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             try
             {
                 string url = "https://localhost:7241/dashboard";
@@ -124,6 +152,10 @@ namespace Bislerium.MVC.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            Response.Cookies.Delete("AccessToken");
+            Response.Cookies.Delete("UserId");
+
             return RedirectToAction("Index", "Home");
         }
     }

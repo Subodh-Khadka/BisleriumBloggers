@@ -19,13 +19,15 @@
                             <div class="mb-3">
                                 <label for="inputPassword" class="form-label">Password</label>
                                 <input type="password" class="form-control" id="inputPassword" name="Password" placeholder="Password" required>
+                                <span asp-validation-for="Password" class="text-danger"></span>
                             </div>
-
                             <button type="submit" class="btn btn-primary w-100">Login</button>
                         </form>
+                        @if(ViewData ["ErrorMessage"] != null)
+                        {
+                            <p class="text-danger">Invalid Login Attempt, please try again</p>
+                        }
                     </div>
-                </div>  
-            </div>
         </div>
         <div class="row mt-3">
             <div class="col-md-6 offset-md-3 text-center">
